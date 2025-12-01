@@ -1,0 +1,53 @@
+VERIFICATION STEPS - DO THESE NOW
+===================================
+
+1. HARD REFRESH THE BROWSER (this is critical)
+   - macOS: Cmd + Shift + R
+   - Windows/Linux: Ctrl + Shift + F5
+
+   This will clear the browser cache and load fresh code from the dev server.
+
+2. Open DevTools (F12 or Cmd+Option+I)
+   - Go to Console tab
+   - Clear any existing logs with the 'X' button
+
+3. Click ONCE in the canvas to place a voxel
+
+4. LOOK FOR THESE EXACT LOGS (in this order):
+   ✓ === CLICK HANDLER ===
+   ✓ planeMode: "y", planePosition: 0
+   ✓ ray direction: (some numbers)
+   ✓ Y Plane click: t=something, calculated (x, y, z)
+   ✓ setVoxel: requested (x, y, z) -> clamped (x, y, z)
+   ✓ Placed voxel at (x, y, z) in chunk (cx, cy, cz)
+
+5. IF YOU SEE OLD LOGS LIKE:
+   ✗ "No hit - placing voxel at origin"
+   ✗ "Voxel set at world (0,0,0)"
+   ✗ "Chunk now has 1 voxels"
+
+   THEN:
+   a) Close the browser tab completely
+   b) Close the entire browser application
+   c) Reopen the browser
+   d) Navigate to http://localhost:5173
+   e) Do hard refresh again (Cmd+Shift+R)
+   f) Try clicking again
+
+   OR use Incognito/Private mode to completely bypass browser cache.
+
+WHAT SHOULD HAPPEN:
+====================
+- Click center of canvas: voxel at (0, 0, 0)
+- Click top-left of canvas: voxel at (negative_x, 0, positive_z)
+- Click top-right of canvas: voxel at (positive_x, 0, positive_z)
+- Click bottom-left: voxel at (negative_x, 0, negative_z)
+- Click bottom-right: voxel at (positive_x, 0, negative_z)
+
+All coordinates should snap to the 10x10x10 grid (-5 to 5 range).
+
+DEV SERVER STATUS:
+==================
+Dev server is running at http://localhost:5173
+The new code with plane intersection is compiled and ready.
+Just need the browser to load it fresh.

@@ -118,6 +118,36 @@
   background-color: #a06868;
 }
 
+.mode-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.mode-btn {
+  flex: 1;
+  padding: 8px 12px;
+  background-color: #444;
+  color: #999;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.mode-btn:hover {
+  background-color: #555;
+  color: #bbb;
+}
+
+.mode-btn.active {
+  background-color: #51cf66;
+  color: #fff;
+  border-color: #2b8a3e;
+}
+
 .plane-buttons {
   display: flex;
   gap: 8px;

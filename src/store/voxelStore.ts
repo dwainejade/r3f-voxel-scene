@@ -6,6 +6,7 @@ const MAX_VOXELS = 1000000; // 1 million voxels for stress testing
 const GRID_SIZE = 10; // 10x10x10 grid
 
 type PlaneMode = 'x' | 'y' | 'z';
+type PlacementMode = 'plane' | 'free';
 
 interface VoxelStore {
   scene: Scene;
@@ -17,6 +18,8 @@ interface VoxelStore {
   voxelCount: number;
   planeMode: PlaneMode;
   planePosition: number;
+  placementMode: PlacementMode;
+  previewVoxel: [number, number, number] | null;
 
   // Actions - Voxel Operations
   setVoxel: (x: number, y: number, z: number, voxel: VoxelData) => void;
@@ -42,6 +45,10 @@ interface VoxelStore {
   setPlaneMode: (mode: PlaneMode) => void;
   setPlanePosition: (position: number) => void;
   movePlane: (direction: -1 | 1) => void;
+
+  // Actions - Placement Mode
+  setPlacementMode: (mode: PlacementMode) => void;
+  setPreviewVoxel: (pos: [number, number, number] | null) => void;
 }
 
 export const useVoxelStore = create<VoxelStore>((set, get) => ({
@@ -54,6 +61,8 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   voxelCount: 0,
   planeMode: 'y',
   planePosition: 0,
+  placementMode: 'plane',
+  previewVoxel: null,
 
   setVoxel: (x, y, z, voxel) => {
     const state = get();
@@ -233,4 +242,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   movePlane: (direction) => {
     set({ planePosition: get().planePosition + direction });
   },
+
+  setPlacementMode: (mode) => set({ placementMode: mode }),
+  setPreviewVoxel: (pos) => set({ previewVoxel: pos }),
 }));

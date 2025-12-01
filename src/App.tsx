@@ -15,6 +15,8 @@ function App() {
   const movePlane = useVoxelStore((state) => state.movePlane);
   const clearScene = useVoxelStore((state) => state.clearScene);
   const stressTest = useVoxelStore((state) => state.stressTest);
+  const placementMode = useVoxelStore((state) => state.placementMode);
+  const setPlacementMode = useVoxelStore((state) => state.setPlacementMode);
 
   const materials = [
     { id: 0, name: 'Red', color: '#ff6b6b' },
@@ -45,32 +47,52 @@ function App() {
         </div>
 
         <div className="panel-section">
-          <h2>Plane Mode</h2>
-          <div className="plane-buttons">
-            {(['x', 'y', 'z'] as const).map((mode) => (
-              <button
-                key={mode}
-                className={`plane-btn ${planeMode === mode ? 'active' : ''}`}
-                onClick={() => setPlaneMode(mode)}
-              >
-                {mode.toUpperCase()}
-              </button>
-            ))}
+          <h2>Placement Mode</h2>
+          <div className="mode-buttons">
+            <button
+              className={`mode-btn ${placementMode === 'plane' ? 'active' : ''}`}
+              onClick={() => setPlacementMode('plane')}
+            >
+              Plane
+            </button>
+            <button
+              className={`mode-btn ${placementMode === 'free' ? 'active' : ''}`}
+              onClick={() => setPlacementMode('free')}
+            >
+              Free (MC)
+            </button>
           </div>
-          <div className="plane-controls">
-            <button className="plane-move-btn" onClick={() => movePlane(-1)}>−</button>
-            <input
-              type="range"
-              min={-50}
-              max={50}
-              value={planePosition}
-              onChange={(e) => setPlanePosition(parseInt(e.target.value))}
-              className="plane-slider"
-            />
-            <button className="plane-move-btn" onClick={() => movePlane(1)}>+</button>
-          </div>
-          <p className="plane-position">Position: {planePosition}</p>
         </div>
+
+        {placementMode === 'plane' && (
+          <div className="panel-section">
+            <h2>Plane Controls</h2>
+            <div className="plane-buttons">
+              {(['x', 'y', 'z'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  className={`plane-btn ${planeMode === mode ? 'active' : ''}`}
+                  onClick={() => setPlaneMode(mode)}
+                >
+                  {mode.toUpperCase()}
+                </button>
+              ))}
+            </div>
+            <div className="plane-controls">
+              <button className="plane-move-btn" onClick={() => movePlane(-1)}>−</button>
+              <input
+                type="range"
+                min={-50}
+                max={50}
+                value={planePosition}
+                onChange={(e) => setPlanePosition(parseInt(e.target.value))}
+                className="plane-slider"
+              />
+              <button className="plane-move-btn" onClick={() => movePlane(1)}>+</button>
+            </div>
+            <p className="plane-position">Position: {planePosition}</p>
+          </div>
+        )}
 
         <div className="panel-section">
           <h2>Mode</h2>

@@ -4,10 +4,11 @@ import { useVoxelStore } from "../store/voxelStore";
 import ChunkRenderer from "./ChunkRenderer";
 import VoxelEditor from "./VoxelEditor";
 import PlaneGuide from "./PlaneGuide";
+import VoxelPreview from "./VoxelPreview";
 
 export default function VoxelCanvas() {
   const scene = useVoxelStore((state) => state.scene);
-  const sceneVersion = useVoxelStore((state) => state.sceneVersion);
+  // const sceneVersion = useVoxelStore((state) => state.sceneVersion);
   const gridSize = useVoxelStore((state) => state.gridSize);
   // Create a stable array of chunks that updates when sceneVersion changes
   const chunks = Array.from(scene.chunks.values());
@@ -22,6 +23,8 @@ export default function VoxelCanvas() {
       {chunks.map((chunk) => (
         <ChunkRenderer key={`${chunk.x},${chunk.y},${chunk.z}`} chunk={chunk} />
       ))}
+
+      <VoxelPreview />
 
       <OrbitControls />
       <gridHelper args={[gridSize, gridSize]} />

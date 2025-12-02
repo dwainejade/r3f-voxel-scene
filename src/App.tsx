@@ -15,6 +15,7 @@ function App() {
   const movePlane = useVoxelStore((state) => state.movePlane);
   const clearScene = useVoxelStore((state) => state.clearScene);
   const stressTest = useVoxelStore((state) => state.stressTest);
+  const buildExampleDockScene = useVoxelStore((state) => state.buildExampleDockScene);
   const placementMode = useVoxelStore((state) => state.placementMode);
   const setPlacementMode = useVoxelStore((state) => state.setPlacementMode);
 
@@ -121,6 +122,13 @@ function App() {
               />
             ))}
           </div>
+        </div>
+
+        <div className="panel-section">
+          <h2>Example Scene</h2>
+          <button className="action-btn" onClick={buildExampleDockScene}>
+            Build Dock Scene
+          </button>
         </div>
 
         <div className="panel-section">

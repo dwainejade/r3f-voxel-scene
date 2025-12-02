@@ -35,7 +35,7 @@ export default function VoxelEditor() {
       mousePosRef.current,
       scene.chunks,
       scene.chunkSize,
-      100
+      400 // Extended range for orthographic camera adjustment
     );
 
     if (placementMode === 'plane') {
@@ -108,7 +108,7 @@ export default function VoxelEditor() {
       mousePosRef.current,
       scene.chunks,
       scene.chunkSize,
-      100
+      400 // Extended range for orthographic camera adjustment
     );
 
     if (e.button === 0) {

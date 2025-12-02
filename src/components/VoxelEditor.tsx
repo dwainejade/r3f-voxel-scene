@@ -20,6 +20,7 @@ export default function VoxelEditor() {
   const setVoxel = useVoxelStore((state) => state.setVoxel);
   const removeVoxel = useVoxelStore((state) => state.removeVoxel);
   const setPreviewVoxel = useVoxelStore((state) => state.setPreviewVoxel);
+  const getVoxel = useVoxelStore((state) => state.getVoxel);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const rect = canvas.getBoundingClientRect();
@@ -89,13 +90,18 @@ export default function VoxelEditor() {
         const newY = hitY + normalY;
         const newZ = hitZ + normalZ;
 
-        console.log(`PREVIEW FREE - Hit: (${hitX}, ${hitY}, ${hitZ}), Normal: (${normalX}, ${normalY}, ${normalZ}), Preview at: (${newX}, ${newY}, ${newZ})`);
-        setPreviewVoxel([newX, newY, newZ]);
+        // Only show preview if the target position is empty (Minecraft-style)
+        const targetVoxel = getVoxel(newX, newY, newZ);
+        if (!targetVoxel) {
+          setPreviewVoxel([newX, newY, newZ]);
+        } else {
+          setPreviewVoxel(null);
+        }
       } else {
         setPreviewVoxel(null);
       }
     }
-  }, [canvas, camera, scene, planeMode, planePosition, placementMode, setPreviewVoxel]);
+  }, [canvas, camera, scene, planeMode, planePosition, placementMode, setPreviewVoxel, getVoxel]);
 
   const handleMouseDown = useCallback((e: MouseEvent) => {
     // Prevent right-click context menu
@@ -169,7 +175,6 @@ export default function VoxelEditor() {
           const newY = hitY + normalY;
           const newZ = hitZ + normalZ;
 
-          console.log(`PLACE FREE - Hit: (${hitX}, ${hitY}, ${hitZ}), Normal: (${normalX}, ${normalY}, ${normalZ}), Placing at: (${newX}, ${newY}, ${newZ}), Material: ${currentMaterial}`);
           setVoxel(newX, newY, newZ, voxel);
         }
       }

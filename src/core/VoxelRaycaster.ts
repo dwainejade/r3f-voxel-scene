@@ -23,9 +23,9 @@ export class VoxelRaycaster {
     let distance = 0;
     const maxSteps = Math.ceil(maxDistance / stepSize);
 
-    let prevVoxelX = Math.floor(origin.x);
-    let prevVoxelY = Math.floor(origin.y);
-    let prevVoxelZ = Math.floor(origin.z);
+    let prevX: number | null = null;
+    let prevY: number | null = null;
+    let prevZ: number | null = null;
 
     for (let i = 0; i < maxSteps; i++) {
       distance = i * stepSize;
@@ -41,40 +41,35 @@ export class VoxelRaycaster {
       const y = Math.floor(pos.y);
       const z = Math.floor(pos.z);
 
-      // Check if voxel exists at this position
-      const voxel = this.getVoxelAt(x, y, z, chunks, chunkSize);
-      if (voxel) {
-        const chunk = this.getChunkForVoxel(x, y, z, chunks, chunkSize);
-        if (chunk) {
-          // Determine which face we hit by comparing current and previous voxel positions
-          // This tells us which voxel boundary we crossed
-          const normal: [number, number, number] = [0, 0, 0];
+      // Check if we're in a new voxel (and have a previous position to compare to)
+      if (prevX !== null && prevY !== null && prevZ !== null && (x !== prevX || y !== prevY || z !== prevZ)) {
+        const voxel = this.getVoxelAt(x, y, z, chunks, chunkSize);
+        if (voxel) {
+          const chunk = this.getChunkForVoxel(x, y, z, chunks, chunkSize);
+          if (chunk) {
+            // Determine which face we hit by comparing to previous voxel position
+            const normal: [number, number, number] = [0, 0, 0];
 
-          if (x !== prevVoxelX) {
-            normal[0] = x > prevVoxelX ? -1 : 1; // If we moved in +X, we hit the -X face
-          } else if (y !== prevVoxelY) {
-            normal[1] = y > prevVoxelY ? -1 : 1; // If we moved in +Y, we hit the -Y face
-          } else if (z !== prevVoxelZ) {
-            normal[2] = z > prevVoxelZ ? -1 : 1; // If we moved in +Z, we hit the -Z face
+            if (x !== prevX) {
+              normal[0] = x > prevX ? -1 : 1; // If we moved in +X, we hit the -X face
+            } else if (y !== prevY) {
+              normal[1] = y > prevY ? -1 : 1; // If we moved in +Y, we hit the -Y face
+            } else if (z !== prevZ) {
+              normal[2] = z > prevZ ? -1 : 1; // If we moved in +Z, we hit the -Z face
+            }
+
+            return {
+              voxel: [x, y, z],
+              normal: normal as [number, number, number],
+              chunk,
+            };
           }
-
-          const faceNames = ["right(+X)", "left(-X)", "top(+Y)", "bottom(-Y)", "front(+Z)", "back(-Z)"];
-          const faceIndex = [
-            [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]
-          ].findIndex(f => f[0] === normal[0] && f[1] === normal[1] && f[2] === normal[2]);
-          console.log(`HIT voxel (${x}, ${y}, ${z}), face: ${faceIndex >= 0 ? faceNames[faceIndex] : 'none'} (normal: ${normal}), came from (${prevVoxelX}, ${prevVoxelY}, ${prevVoxelZ})`);
-
-          return {
-            voxel: [x, y, z],
-            normal: normal as [number, number, number],
-            chunk,
-          };
         }
       }
 
-      prevVoxelX = x;
-      prevVoxelY = y;
-      prevVoxelZ = z;
+      prevX = x;
+      prevY = y;
+      prevZ = z;
     }
     return null;
   }

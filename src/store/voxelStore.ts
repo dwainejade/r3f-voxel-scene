@@ -79,17 +79,11 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     // Check if voxel already exists
     const existing = state.getVoxel(clampedX, clampedY, clampedZ);
     if (existing) {
-      console.log(
-        `  Already has voxel at (${clampedX}, ${clampedY}, ${clampedZ})`
-      );
       return;
     }
 
     // Check limit
     if (state.voxelCount >= MAX_VOXELS) {
-      console.warn(
-        `Cannot place voxel - max voxel limit (${MAX_VOXELS}) reached`
-      );
       return;
     }
 

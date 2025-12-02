@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Stats, Sky } from "@react-three/drei";
 import { useVoxelStore } from "../store/voxelStore";
@@ -5,6 +6,33 @@ import ChunkRenderer from "./ChunkRenderer";
 import VoxelEditor from "./VoxelEditor";
 import PlaneGuide from "./PlaneGuide";
 import VoxelPreview from "./VoxelPreview";
+
+function OrbitControlsWrapper() {
+  const controlsRef = useRef<any>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Shift" && controlsRef.current) {
+        controlsRef.current.enabled = false;
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "Shift" && controlsRef.current) {
+        controlsRef.current.enabled = true;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
+
+  return <OrbitControls ref={controlsRef} />;
+}
 
 export default function VoxelCanvas() {
   const scene = useVoxelStore((state) => state.scene);
@@ -46,7 +74,7 @@ export default function VoxelCanvas() {
 
       <VoxelPreview />
 
-      <OrbitControls />
+      <OrbitControlsWrapper />
       <gridHelper args={[gridSize, gridSize]} />
       <axesHelper args={[20]} />
       <PlaneGuide />

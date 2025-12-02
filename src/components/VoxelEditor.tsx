@@ -46,33 +46,35 @@ export default function VoxelEditor() {
 
       let x = 0, y = 0, z = 0;
       const epsilon = 0.0001;
+      const rayOrigin = tempRaycaster.ray.origin;
+      const rayDir = tempRaycaster.ray.direction;
 
       if (planeMode === 'y') {
-        if (Math.abs(tempRaycaster.ray.direction.y) < epsilon) {
+        if (Math.abs(rayDir.y) < epsilon) {
           setPreviewVoxel(null);
           return;
         }
-        const t = (planePosition - camera.position.y) / tempRaycaster.ray.direction.y;
-        x = Math.round(camera.position.x + tempRaycaster.ray.direction.x * t);
+        const t = (planePosition - rayOrigin.y) / rayDir.y;
+        x = Math.round(rayOrigin.x + rayDir.x * t);
         y = Math.round(planePosition);
-        z = Math.round(camera.position.z + tempRaycaster.ray.direction.z * t);
+        z = Math.round(rayOrigin.z + rayDir.z * t);
       } else if (planeMode === 'x') {
-        if (Math.abs(tempRaycaster.ray.direction.x) < epsilon) {
+        if (Math.abs(rayDir.x) < epsilon) {
           setPreviewVoxel(null);
           return;
         }
-        const t = (planePosition - camera.position.x) / tempRaycaster.ray.direction.x;
+        const t = (planePosition - rayOrigin.x) / rayDir.x;
         x = Math.round(planePosition);
-        y = Math.round(camera.position.y + tempRaycaster.ray.direction.y * t);
-        z = Math.round(camera.position.z + tempRaycaster.ray.direction.z * t);
+        y = Math.round(rayOrigin.y + rayDir.y * t);
+        z = Math.round(rayOrigin.z + rayDir.z * t);
       } else {
-        if (Math.abs(tempRaycaster.ray.direction.z) < epsilon) {
+        if (Math.abs(rayDir.z) < epsilon) {
           setPreviewVoxel(null);
           return;
         }
-        const t = (planePosition - camera.position.z) / tempRaycaster.ray.direction.z;
-        x = Math.round(camera.position.x + tempRaycaster.ray.direction.x * t);
-        y = Math.round(camera.position.y + tempRaycaster.ray.direction.y * t);
+        const t = (planePosition - rayOrigin.z) / rayDir.z;
+        x = Math.round(rayOrigin.x + rayDir.x * t);
+        y = Math.round(rayOrigin.y + rayDir.y * t);
         z = Math.round(planePosition);
       }
 
@@ -115,10 +117,6 @@ export default function VoxelEditor() {
 
       if (placementMode === 'plane') {
         // PLANE MODE: Place on constrained plane
-        console.log(`\n=== LEFT CLICK (PLANE MODE) ===`);
-        console.log(`planeMode: "${planeMode}", planePosition: ${planePosition}`);
-
-        // Create a ray from the camera through the mouse position
         const tempRaycaster = new THREE.Raycaster();
         const mouseVec = new THREE.Vector2(mousePosRef.current.x, mousePosRef.current.y);
         tempRaycaster.setFromCamera(mouseVec, camera);
@@ -126,49 +124,41 @@ export default function VoxelEditor() {
         // Find intersection with plane
         let x = 0, y = 0, z = 0;
         const epsilon = 0.0001;
-
-        console.log(`ray direction: (${tempRaycaster.ray.direction.x.toFixed(3)}, ${tempRaycaster.ray.direction.y.toFixed(3)}, ${tempRaycaster.ray.direction.z.toFixed(3)})`);
+        const rayOrigin = tempRaycaster.ray.origin;
+        const rayDir = tempRaycaster.ray.direction;
 
         if (planeMode === 'y') {
           // Y plane - calculate X and Z from ray intersection with Y plane
-          if (Math.abs(tempRaycaster.ray.direction.y) < epsilon) {
-            console.log('Y plane: ray is parallel to plane');
+          if (Math.abs(rayDir.y) < epsilon) {
             return;
           }
-          const t = (planePosition - camera.position.y) / tempRaycaster.ray.direction.y;
-          x = Math.round(camera.position.x + tempRaycaster.ray.direction.x * t);
+          const t = (planePosition - rayOrigin.y) / rayDir.y;
+          x = Math.round(rayOrigin.x + rayDir.x * t);
           y = Math.round(planePosition);
-          z = Math.round(camera.position.z + tempRaycaster.ray.direction.z * t);
-          console.log(`Y Plane click: t=${t.toFixed(2)}, calculated (${x}, ${y}, ${z})`);
+          z = Math.round(rayOrigin.z + rayDir.z * t);
         } else if (planeMode === 'x') {
           // X plane - calculate Y and Z from ray intersection with X plane
-          if (Math.abs(tempRaycaster.ray.direction.x) < epsilon) {
-            console.log('X plane: ray is parallel to plane');
+          if (Math.abs(rayDir.x) < epsilon) {
             return;
           }
-          const t = (planePosition - camera.position.x) / tempRaycaster.ray.direction.x;
+          const t = (planePosition - rayOrigin.x) / rayDir.x;
           x = Math.round(planePosition);
-          y = Math.round(camera.position.y + tempRaycaster.ray.direction.y * t);
-          z = Math.round(camera.position.z + tempRaycaster.ray.direction.z * t);
-          console.log(`X Plane click: t=${t.toFixed(2)}, calculated (${x}, ${y}, ${z})`);
+          y = Math.round(rayOrigin.y + rayDir.y * t);
+          z = Math.round(rayOrigin.z + rayDir.z * t);
         } else {
           // Z plane - calculate X and Y from ray intersection with Z plane
-          if (Math.abs(tempRaycaster.ray.direction.z) < epsilon) {
-            console.log('Z plane: ray is parallel to plane');
+          if (Math.abs(rayDir.z) < epsilon) {
             return;
           }
-          const t = (planePosition - camera.position.z) / tempRaycaster.ray.direction.z;
-          x = Math.round(camera.position.x + tempRaycaster.ray.direction.x * t);
-          y = Math.round(camera.position.y + tempRaycaster.ray.direction.y * t);
+          const t = (planePosition - rayOrigin.z) / rayDir.z;
+          x = Math.round(rayOrigin.x + rayDir.x * t);
+          y = Math.round(rayOrigin.y + rayDir.y * t);
           z = Math.round(planePosition);
-          console.log(`Z Plane click: t=${t.toFixed(2)}, calculated (${x}, ${y}, ${z})`);
         }
 
         setVoxel(x, y, z, voxel);
       } else {
         // FREE MODE: Raycast and place adjacent to hit voxel (Minecraft-style)
-        console.log(`\n=== LEFT CLICK (FREE MODE) ===`);
-
         if (result) {
           const [hitX, hitY, hitZ] = result.voxel;
           const [normalX, normalY, normalZ] = result.normal;
@@ -178,12 +168,7 @@ export default function VoxelEditor() {
           const newY = hitY + normalY;
           const newZ = hitZ + normalZ;
 
-          console.log(`Hit voxel: (${hitX}, ${hitY}, ${hitZ}), normal: (${normalX}, ${normalY}, ${normalZ})`);
-          console.log(`Placing at: (${newX}, ${newY}, ${newZ})`);
-
           setVoxel(newX, newY, newZ, voxel);
-        } else {
-          console.log('No voxel hit - cannot place in free mode');
         }
       }
     } else if (e.button === 2) {

@@ -46,7 +46,8 @@ export class VoxelRaycaster {
     let tMaxZ = tDeltaZ * (stepZ > 0 ? 1 - (origin.z - z) : origin.z - z);
 
     let distance = 0;
-    let normal: [number, number, number] = [1, 0, 0];
+    // The normal represents the face we're crossing as we step
+    let normal: [number, number, number] = [0, 0, 0];
 
     while (distance < maxDistance) {
       // Check if voxel exists
@@ -56,23 +57,25 @@ export class VoxelRaycaster {
         if (chunk) {
           return {
             voxel: [x, y, z],
-            normal,
+            normal: normal,
             chunk,
           };
         }
       }
 
-      // Step to next voxel and compute normal for next face we'll hit
+      // Step to next voxel and compute the face normal we're crossing
       if (tMaxX < tMaxY) {
         if (tMaxX < tMaxZ) {
           distance = tMaxX;
           tMaxX += tDeltaX;
           x += stepX;
+          // We're crossing the YZ plane, so normal points in X direction (direction we're moving)
           normal = [stepX, 0, 0] as [number, number, number];
         } else {
           distance = tMaxZ;
           tMaxZ += tDeltaZ;
           z += stepZ;
+          // We're crossing the XY plane, so normal points in Z direction (direction we're moving)
           normal = [0, 0, stepZ] as [number, number, number];
         }
       } else {
@@ -80,11 +83,13 @@ export class VoxelRaycaster {
           distance = tMaxY;
           tMaxY += tDeltaY;
           y += stepY;
+          // We're crossing the XZ plane, so normal points in Y direction (direction we're moving)
           normal = [0, stepY, 0] as [number, number, number];
         } else {
           distance = tMaxZ;
           tMaxZ += tDeltaZ;
           z += stepZ;
+          // We're crossing the XY plane, so normal points in Z direction (direction we're moving)
           normal = [0, 0, stepZ] as [number, number, number];
         }
       }

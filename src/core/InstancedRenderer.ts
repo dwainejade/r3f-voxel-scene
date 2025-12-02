@@ -22,6 +22,8 @@ export class InstancedVoxelRenderer {
         maxVoxelsPerMaterial
       );
       mesh.count = 0;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
       this.instancedMeshes.set(id, mesh);
     });
   }

@@ -1,12 +1,13 @@
-import { create } from 'zustand';
-import type { Chunk, VoxelData, Scene } from '../core/types';
-import { worldToChunk, chunkKey, voxelKey } from '../core/utils';
+import { create } from "zustand";
+import type { Chunk, VoxelData, Scene } from "../core/types";
+import { worldToChunk, chunkKey, voxelKey } from "../core/utils";
+import { buildExampleScene } from "../core/sceneBuilder";
 
 const MAX_VOXELS = 1000000; // 1 million voxels for stress testing
-const GRID_SIZE = 10; // 10x10x10 grid
+const GRID_SIZE = 100; // 10x10x10 grid
 
-type PlaneMode = 'x' | 'y' | 'z';
-type PlacementMode = 'plane' | 'free';
+type PlaneMode = "x" | "y" | "z";
+type PlacementMode = "plane" | "free";
 
 interface VoxelStore {
   scene: Scene;
@@ -40,6 +41,7 @@ interface VoxelStore {
   // Actions - Scene Management
   clearScene: () => void;
   stressTest: (count: number) => void;
+  buildExampleDockScene: () => void;
 
   // Actions - Plane Mode
   setPlaneMode: (mode: PlaneMode) => void;
@@ -59,9 +61,9 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   currentMaterial: 0,
   sceneVersion: 0,
   voxelCount: 0,
-  planeMode: 'y',
+  planeMode: "y",
   planePosition: 0,
-  placementMode: 'plane',
+  placementMode: "plane",
   previewVoxel: null,
 
   setVoxel: (x, y, z, voxel) => {
@@ -74,43 +76,51 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     const clampedY = Math.max(-half, Math.min(half, Math.round(y)));
     const clampedZ = Math.max(-half, Math.min(half, Math.round(z)));
 
-    console.log(`setVoxel: requested (${x}, ${y}, ${z}) -> clamped (${clampedX}, ${clampedY}, ${clampedZ})`);
-
     // Check if voxel already exists
     const existing = state.getVoxel(clampedX, clampedY, clampedZ);
     if (existing) {
-      console.log(`  Already has voxel at (${clampedX}, ${clampedY}, ${clampedZ})`);
+      console.log(
+        `  Already has voxel at (${clampedX}, ${clampedY}, ${clampedZ})`
+      );
       return;
     }
 
     // Check limit
     if (state.voxelCount >= MAX_VOXELS) {
-      console.warn(`Cannot place voxel - max voxel limit (${MAX_VOXELS}) reached`);
+      console.warn(
+        `Cannot place voxel - max voxel limit (${MAX_VOXELS}) reached`
+      );
       return;
     }
 
     const { chunkSize } = state.scene;
-    const { chunkX, chunkY, chunkZ, localX, localY, localZ } =
-      worldToChunk(clampedX, clampedY, clampedZ, chunkSize);
+    const { chunkX, chunkY, chunkZ, localX, localY, localZ } = worldToChunk(
+      clampedX,
+      clampedY,
+      clampedZ,
+      chunkSize
+    );
 
     const chunk = state.getOrCreateChunk(chunkX, chunkY, chunkZ);
     const key = voxelKey(localX, localY, localZ);
     chunk.voxels.set(key, voxel);
     chunk.dirty = true;
 
-    console.log(`  Placed voxel at (${clampedX}, ${clampedY}, ${clampedZ}) in chunk (${chunkX}, ${chunkY}, ${chunkZ})`);
-
     set({
       voxelCount: state.voxelCount + 1,
-      sceneVersion: state.sceneVersion + 1
+      sceneVersion: state.sceneVersion + 1,
     });
   },
 
   removeVoxel: (x, y, z) => {
     const state = get();
     const { chunkSize } = state.scene;
-    const { chunkX, chunkY, chunkZ, localX, localY, localZ } =
-      worldToChunk(x, y, z, chunkSize);
+    const { chunkX, chunkY, chunkZ, localX, localY, localZ } = worldToChunk(
+      x,
+      y,
+      z,
+      chunkSize
+    );
 
     const chunk = state.getChunk(chunkX, chunkY, chunkZ);
     if (!chunk) return;
@@ -123,14 +133,18 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
 
     set({
       voxelCount: Math.max(0, state.voxelCount - 1),
-      sceneVersion: state.sceneVersion + 1
+      sceneVersion: state.sceneVersion + 1,
     });
   },
 
   getVoxel: (x, y, z) => {
     const { chunkSize } = get().scene;
-    const { chunkX, chunkY, chunkZ, localX, localY, localZ } =
-      worldToChunk(x, y, z, chunkSize);
+    const { chunkX, chunkY, chunkZ, localX, localY, localZ } = worldToChunk(
+      x,
+      y,
+      z,
+      chunkSize
+    );
 
     const chunk = get().getChunk(chunkX, chunkY, chunkZ);
     if (!chunk) return null;
@@ -187,9 +201,6 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     const { chunkSize } = state.scene;
     let placed = 0;
 
-    console.time(`Stress Test - Placing ${count} voxels`);
-    console.log(`Starting stress test: placing ${count} voxels`);
-
     // Clear scene first
     set({
       scene: { chunks: new Map(), chunkSize: 16 },
@@ -228,9 +239,6 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
       }
     }
 
-    console.timeEnd(`Stress Test - Placing ${count} voxels`);
-    console.log(`✓ Stress test complete: placed ${placed} voxels across ${get().scene.chunks.size} chunks`);
-
     set({
       voxelCount: placed,
       sceneVersion: get().sceneVersion + 1,
@@ -245,4 +253,55 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
 
   setPlacementMode: (mode) => set({ placementMode: mode }),
   setPreviewVoxel: (pos) => set({ previewVoxel: pos }),
+
+  buildExampleDockScene: () => {
+    const state = get();
+
+    // Clear scene first
+    set({
+      scene: { chunks: new Map(), chunkSize: 16 },
+      selectedVoxel: null,
+      sceneVersion: 0,
+      voxelCount: 0,
+    });
+
+    // Build the scene
+    let voxelCount = 0;
+    const buildAPI = {
+      setVoxel: (x: number, y: number, z: number, materialId: number) => {
+        const gridSize = state.gridSize;
+        const half = Math.floor(gridSize / 2);
+
+        // Clamp coordinates
+        const clampedX = Math.max(-half, Math.min(half, Math.round(x)));
+        const clampedY = Math.max(-half, Math.min(half, Math.round(y)));
+        const clampedZ = Math.max(-half, Math.min(half, Math.round(z)));
+
+        // Check if voxel already exists
+        const existing = get().getVoxel(clampedX, clampedY, clampedZ);
+        if (existing) return;
+
+        const { chunkSize } = get().scene;
+        const { chunkX, chunkY, chunkZ, localX, localY, localZ } = worldToChunk(
+          clampedX,
+          clampedY,
+          clampedZ,
+          chunkSize
+        );
+
+        const chunk = get().getOrCreateChunk(chunkX, chunkY, chunkZ);
+        const key = voxelKey(localX, localY, localZ);
+        chunk.voxels.set(key, { materialId });
+        chunk.dirty = true;
+        voxelCount++;
+      },
+    };
+
+    buildExampleScene(buildAPI);
+
+    set({
+      voxelCount,
+      sceneVersion: get().sceneVersion + 1,
+    });
+  },
 }));

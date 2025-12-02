@@ -14,11 +14,31 @@ export default function VoxelCanvas() {
   const chunks = Array.from(scene.chunks.values());
 
   return (
-    <Canvas camera={{ position: [20, 20, 20], far: 1000 }}>
+    <Canvas
+      camera={{
+        position: [60, 60, 60],
+        zoom: 30,
+        near: 0.1,
+        far: 1000,
+      }}
+      dpr={[1, 2]}
+      orthographic
+      shadows
+    >
       <Stats />
       <Sky sunPosition={[100, 20, 100]} />
       <ambientLight intensity={0.6} />
-      <directionalLight position={[10, 10, 5]} intensity={0.8} />
+      <directionalLight
+        position={[10, 10, 5]}
+        intensity={0.8}
+        castShadow
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-camera-left={-50}
+        shadow-camera-right={50}
+        shadow-camera-top={50}
+        shadow-camera-bottom={-50}
+      />
 
       {chunks.map((chunk) => (
         <ChunkRenderer key={`${chunk.x},${chunk.y},${chunk.z}`} chunk={chunk} />

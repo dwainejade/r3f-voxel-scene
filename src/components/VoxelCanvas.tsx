@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Stats, Environment } from "@react-three/drei";
+import { OrbitControls, Stats } from "@react-three/drei";
 import { useVoxelStore } from "../store/voxelStore";
 import ChunkRenderer from "./ChunkRenderer";
 import VoxelEditor from "./VoxelEditor";
@@ -52,10 +52,14 @@ export default function VoxelCanvas() {
       dpr={[1, 2]}
       orthographic
       shadows
-      style={{ height: "100vh", width: "100vw", background: "#fcfbc4ff" }}
+      style={{
+        height: "100vh",
+        width: "100vw",
+        background:
+          "linear-gradient(to bottom, #87ceeb 10%, #cae9f5ff 40%, #ffffff 100%)",
+      }}
     >
       <Stats />
-      <Environment preset="sunset" />
       <ambientLight intensity={2} />
       {/* <directionalLight
         position={[30, 40, 30]}

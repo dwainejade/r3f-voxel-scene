@@ -42,30 +42,34 @@ export class VoxelRaycaster {
       if (voxel) {
         const chunk = this.getChunkForVoxel(x, y, z, chunks, chunkSize);
         if (chunk) {
-          // Calculate which face we hit (approximate based on last position)
-          const prevPos = new THREE.Vector3(
-            origin.x + direction.x * Math.max(0, distance - stepSize),
-            origin.y + direction.y * Math.max(0, distance - stepSize),
-            origin.z + direction.z * Math.max(0, distance - stepSize)
-          );
+          // Determine which face we hit by comparing ray direction with face normals
+          // The six possible face normals
+          const faceNormals: Array<[number, number, number]> = [
+            [1, 0, 0],   // +X face (right)
+            [-1, 0, 0],  // -X face (left)
+            [0, 1, 0],   // +Y face (top)
+            [0, -1, 0],  // -Y face (bottom)
+            [0, 0, 1],   // +Z face (front)
+            [0, 0, -1],  // -Z face (back)
+          ];
 
-          const normal: [number, number, number] = [0, 0, 0];
-          const dx = pos.x - prevPos.x;
-          const dy = pos.y - prevPos.y;
-          const dz = pos.z - prevPos.z;
+          // Find which face normal is most opposite to ray direction
+          // (we hit a face with normal pointing away from ray direction)
+          let bestDot = Infinity;
+          let normal: [number, number, number] = [0, 0, 0];
 
-          // Determine which axis had the largest change
-          if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > Math.abs(dz)) {
-            normal[0] = Math.sign(dx);
-          } else if (Math.abs(dy) > Math.abs(dz)) {
-            normal[1] = Math.sign(dy);
-          } else {
-            normal[2] = Math.sign(dz);
+          for (const faceNormal of faceNormals) {
+            // Dot product of face normal with negative ray direction
+            const dot = -(faceNormal[0] * direction.x + faceNormal[1] * direction.y + faceNormal[2] * direction.z);
+            if (dot < bestDot) {
+              bestDot = dot;
+              normal = faceNormal as [number, number, number];
+            }
           }
 
           return {
             voxel: [x, y, z],
-            normal: normal as [number, number, number],
+            normal: normal,
             chunk,
           };
         }

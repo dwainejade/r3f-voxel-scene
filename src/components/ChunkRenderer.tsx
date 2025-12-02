@@ -17,19 +17,44 @@ export default function ChunkRenderer({ chunk }: Props) {
     const mats = new Map<number, THREE.Material>();
 
     // Material 0 - Red
-    mats.set(0, new THREE.MeshStandardMaterial({ color: 0xff6b6b }));
+    mats.set(0, new THREE.MeshStandardMaterial({
+      color: 0xff6b6b,
+      roughness: 0.8,
+      metalness: 0,
+      flatShading: true
+    }));
 
     // Material 1 - Green
-    mats.set(1, new THREE.MeshStandardMaterial({ color: 0x51cf66 }));
+    mats.set(1, new THREE.MeshStandardMaterial({
+      color: 0x51cf66,
+      roughness: 0.8,
+      metalness: 0,
+      flatShading: true
+    }));
 
     // Material 2 - Blue
-    mats.set(2, new THREE.MeshStandardMaterial({ color: 0x4dabf7 }));
+    mats.set(2, new THREE.MeshStandardMaterial({
+      color: 0x4dabf7,
+      roughness: 0.8,
+      metalness: 0,
+      flatShading: true
+    }));
 
     // Material 3 - Yellow
-    mats.set(3, new THREE.MeshStandardMaterial({ color: 0xffd43b }));
+    mats.set(3, new THREE.MeshStandardMaterial({
+      color: 0xffd43b,
+      roughness: 0.8,
+      metalness: 0,
+      flatShading: true
+    }));
 
     // Material 4 - Purple
-    mats.set(4, new THREE.MeshStandardMaterial({ color: 0xda77f2 }));
+    mats.set(4, new THREE.MeshStandardMaterial({
+      color: 0xda77f2,
+      roughness: 0.8,
+      metalness: 0,
+      flatShading: true
+    }));
 
     return mats;
   }, []);

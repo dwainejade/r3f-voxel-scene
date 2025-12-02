@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Stats, Sky } from "@react-three/drei";
+import { OrbitControls, Stats, Environment } from "@react-three/drei";
 import { useVoxelStore } from "../store/voxelStore";
 import ChunkRenderer from "./ChunkRenderer";
 import VoxelEditor from "./VoxelEditor";
@@ -37,7 +37,7 @@ function OrbitControlsWrapper() {
 export default function VoxelCanvas() {
   const scene = useVoxelStore((state) => state.scene);
   // const sceneVersion = useVoxelStore((state) => state.sceneVersion);
-  const gridSize = useVoxelStore((state) => state.gridSize);
+  // const gridSize = useVoxelStore((state) => state.gridSize);
   // Create a stable array of chunks that updates when sceneVersion changes
   const chunks = Array.from(scene.chunks.values());
 
@@ -52,21 +52,23 @@ export default function VoxelCanvas() {
       dpr={[1, 2]}
       orthographic
       shadows
+      style={{ height: "100vh", width: "100vw", background: "#fcfbc4ff" }}
     >
       <Stats />
-      <Sky sunPosition={[100, 20, 100]} />
-      <ambientLight intensity={0.6} />
-      <directionalLight
-        position={[10, 10, 5]}
-        intensity={0.8}
+      <Environment preset="sunset" />
+      <ambientLight intensity={2} />
+      {/* <directionalLight
+        position={[30, 40, 30]}
+        intensity={0.4}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
-        shadow-camera-left={-50}
-        shadow-camera-right={50}
-        shadow-camera-top={50}
-        shadow-camera-bottom={-50}
-      />
+        shadow-camera-left={-80}
+        shadow-camera-right={80}
+        shadow-camera-top={80}
+        shadow-camera-bottom={-80}
+      /> */}
+      <hemisphereLight args={[0xf0e6d2, 0xd4c5b0, 0.8]} />
 
       {chunks.map((chunk) => (
         <ChunkRenderer key={`${chunk.x},${chunk.y},${chunk.z}`} chunk={chunk} />
@@ -75,7 +77,7 @@ export default function VoxelCanvas() {
       <VoxelPreview />
 
       <OrbitControlsWrapper />
-      <gridHelper args={[gridSize, gridSize]} />
+      {/* <gridHelper args={[gridSize, gridSize]} /> */}
       <axesHelper args={[20]} />
       <PlaneGuide />
 

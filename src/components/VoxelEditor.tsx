@@ -89,6 +89,7 @@ export default function VoxelEditor() {
         const newY = hitY + normalY;
         const newZ = hitZ + normalZ;
 
+        console.log(`PREVIEW FREE - Hit: (${hitX}, ${hitY}, ${hitZ}), Normal: (${normalX}, ${normalY}, ${normalZ}), Preview at: (${newX}, ${newY}, ${newZ})`);
         setPreviewVoxel([newX, newY, newZ]);
       } else {
         setPreviewVoxel(null);
@@ -168,6 +169,7 @@ export default function VoxelEditor() {
           const newY = hitY + normalY;
           const newZ = hitZ + normalZ;
 
+          console.log(`PLACE FREE - Hit: (${hitX}, ${hitY}, ${hitZ}), Normal: (${normalX}, ${normalY}, ${normalZ}), Placing at: (${newX}, ${newY}, ${newZ}), Material: ${currentMaterial}`);
           setVoxel(newX, newY, newZ, voxel);
         }
       }

@@ -67,6 +67,10 @@ export class VoxelRaycaster {
             }
           }
 
+          const faceNames = ["right(+X)", "left(-X)", "top(+Y)", "bottom(-Y)", "front(+Z)", "back(-Z)"];
+          const faceIndex = faceNormals.findIndex(f => f[0] === normal[0] && f[1] === normal[1] && f[2] === normal[2]);
+          console.log(`HIT voxel (${x}, ${y}, ${z}), face: ${faceNames[faceIndex]} (normal: ${normal})`);
+
           return {
             voxel: [x, y, z],
             normal: normal,

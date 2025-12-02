@@ -23,6 +23,10 @@ export class VoxelRaycaster {
     let distance = 0;
     const maxSteps = Math.ceil(maxDistance / stepSize);
 
+    let prevVoxelX = Math.floor(origin.x);
+    let prevVoxelY = Math.floor(origin.y);
+    let prevVoxelZ = Math.floor(origin.z);
+
     for (let i = 0; i < maxSteps; i++) {
       distance = i * stepSize;
 
@@ -42,42 +46,35 @@ export class VoxelRaycaster {
       if (voxel) {
         const chunk = this.getChunkForVoxel(x, y, z, chunks, chunkSize);
         if (chunk) {
-          // Determine which face we hit by comparing ray direction with face normals
-          // The six possible face normals
-          const faceNormals: Array<[number, number, number]> = [
-            [1, 0, 0],   // +X face (right)
-            [-1, 0, 0],  // -X face (left)
-            [0, 1, 0],   // +Y face (top)
-            [0, -1, 0],  // -Y face (bottom)
-            [0, 0, 1],   // +Z face (front)
-            [0, 0, -1],  // -Z face (back)
-          ];
+          // Determine which face we hit by comparing current and previous voxel positions
+          // This tells us which voxel boundary we crossed
+          const normal: [number, number, number] = [0, 0, 0];
 
-          // Find which face normal is most opposite to ray direction
-          // (we hit a face with normal pointing away from ray direction)
-          let bestDot = Infinity;
-          let normal: [number, number, number] = [0, 0, 0];
-
-          for (const faceNormal of faceNormals) {
-            // Dot product of face normal with negative ray direction
-            const dot = -(faceNormal[0] * direction.x + faceNormal[1] * direction.y + faceNormal[2] * direction.z);
-            if (dot < bestDot) {
-              bestDot = dot;
-              normal = faceNormal as [number, number, number];
-            }
+          if (x !== prevVoxelX) {
+            normal[0] = x > prevVoxelX ? -1 : 1; // If we moved in +X, we hit the -X face
+          } else if (y !== prevVoxelY) {
+            normal[1] = y > prevVoxelY ? -1 : 1; // If we moved in +Y, we hit the -Y face
+          } else if (z !== prevVoxelZ) {
+            normal[2] = z > prevVoxelZ ? -1 : 1; // If we moved in +Z, we hit the -Z face
           }
 
           const faceNames = ["right(+X)", "left(-X)", "top(+Y)", "bottom(-Y)", "front(+Z)", "back(-Z)"];
-          const faceIndex = faceNormals.findIndex(f => f[0] === normal[0] && f[1] === normal[1] && f[2] === normal[2]);
-          console.log(`HIT voxel (${x}, ${y}, ${z}), face: ${faceNames[faceIndex]} (normal: ${normal})`);
+          const faceIndex = [
+            [1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]
+          ].findIndex(f => f[0] === normal[0] && f[1] === normal[1] && f[2] === normal[2]);
+          console.log(`HIT voxel (${x}, ${y}, ${z}), face: ${faceIndex >= 0 ? faceNames[faceIndex] : 'none'} (normal: ${normal}), came from (${prevVoxelX}, ${prevVoxelY}, ${prevVoxelZ})`);
 
           return {
             voxel: [x, y, z],
-            normal: normal,
+            normal: normal as [number, number, number],
             chunk,
           };
         }
       }
+
+      prevVoxelX = x;
+      prevVoxelY = y;
+      prevVoxelZ = z;
     }
     return null;
   }

@@ -1,6 +1,11 @@
 import './App.css';
 import VoxelCanvas from './components/VoxelCanvas';
+import PaletteManager from './components/PaletteManager';
+import LightControls from './components/LightControls';
+import AssetBrowser from './components/AssetBrowser';
 import { useVoxelStore } from './store/voxelStore';
+import { MATERIAL_PRESETS, MATERIAL_CATEGORIES } from './core/materials';
+import { useState } from 'react';
 
 function App() {
   const editMode = useVoxelStore((state) => state.editMode);
@@ -16,16 +21,11 @@ function App() {
   const clearScene = useVoxelStore((state) => state.clearScene);
   const stressTest = useVoxelStore((state) => state.stressTest);
   const buildExampleDockScene = useVoxelStore((state) => state.buildExampleDockScene);
+  const buildCozyRoomScene = useVoxelStore((state) => state.buildCozyRoomScene);
   const placementMode = useVoxelStore((state) => state.placementMode);
   const setPlacementMode = useVoxelStore((state) => state.setPlacementMode);
 
-  const materials = [
-    { id: 0, name: 'Red', color: '#ff6b6b' },
-    { id: 1, name: 'Green', color: '#51cf66' },
-    { id: 2, name: 'Blue', color: '#4dabf7' },
-    { id: 3, name: 'Yellow', color: '#ffd43b' },
-    { id: 4, name: 'Purple', color: '#da77f2' },
-  ];
+  const [expandedCategory, setExpandedCategory] = useState<string | null>('softCozy');
 
   return (
     <div className="app">
@@ -108,28 +108,54 @@ function App() {
         </div>
 
         <div className="panel-section">
-          <h2>Material</h2>
-          <div className="material-palette">
-            {materials.map((material) => (
-              <button
-                key={material.id}
-                className={`material-btn ${
-                  currentMaterial === material.id ? 'active' : ''
-                }`}
-                style={{ backgroundColor: material.color }}
-                onClick={() => setCurrentMaterial(material.id)}
-                title={material.name}
-              />
+          <h2>Materials</h2>
+          <div className="material-categories">
+            {Object.entries(MATERIAL_CATEGORIES).map(([categoryName, materialIds]) => (
+              <div key={categoryName} className="material-category">
+                <button
+                  className="category-toggle"
+                  onClick={() => setExpandedCategory(expandedCategory === categoryName ? null : categoryName)}
+                >
+                  {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}
+                </button>
+                {expandedCategory === categoryName && (
+                  <div className="material-palette">
+                    {materialIds.map((materialId) => {
+                      const material = MATERIAL_PRESETS[materialId];
+                      return (
+                        <button
+                          key={material.id}
+                          className={`material-btn ${
+                            currentMaterial === material.id ? 'active' : ''
+                          }`}
+                          style={{ backgroundColor: material.color }}
+                          onClick={() => setCurrentMaterial(material.id)}
+                          title={material.name}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>
 
         <div className="panel-section">
-          <h2>Example Scene</h2>
+          <h2>Example Scenes</h2>
           <button className="action-btn" onClick={buildExampleDockScene}>
             Build Dock Scene
           </button>
+          <button className="action-btn" onClick={buildCozyRoomScene}>
+            Build Cozy Room
+          </button>
         </div>
+
+        <PaletteManager onPaletteLoad={() => {}} />
+
+        <LightControls />
+
+        <AssetBrowser />
 
         <div className="panel-section">
           <h2>Stress Test</h2>

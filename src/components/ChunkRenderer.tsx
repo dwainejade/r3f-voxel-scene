@@ -2,6 +2,7 @@ import { useEffect, useRef, useMemo } from 'react';
 import * as THREE from 'three';
 import type { Chunk } from '../core/types';
 import { InstancedVoxelRenderer } from '../core/InstancedRenderer';
+import { MATERIAL_PRESETS } from '../core/materials';
 
 interface Props {
   chunk: Chunk;
@@ -12,49 +13,22 @@ export default function ChunkRenderer({ chunk }: Props) {
   const instancedRendererRef = useRef<InstancedVoxelRenderer | null>(null);
   const meshesRef = useRef<THREE.InstancedMesh[]>([]);
 
-  // Create materials for different material IDs
+  // Create THREE materials from preset definitions
   const materials = useMemo(() => {
-    const mats = new Map<number, THREE.Material>();
+    const mats = new Map<string, THREE.Material>();
 
-    // Material 0 - Red
-    mats.set(0, new THREE.MeshStandardMaterial({
-      color: 0xff6b6b,
-      roughness: 0.8,
-      metalness: 0,
-      flatShading: true
-    }));
+    Object.entries(MATERIAL_PRESETS).forEach(([id, preset]) => {
+      const threeMaterial = new THREE.MeshStandardMaterial({
+        color: preset.color,
+        roughness: preset.roughness,
+        metalness: preset.metalness,
+        emissive: preset.emissive || undefined,
+        emissiveIntensity: preset.emissiveIntensity || 0,
+        flatShading: false, // Smooth shading for softer look
+      });
 
-    // Material 1 - Green
-    mats.set(1, new THREE.MeshStandardMaterial({
-      color: 0x51cf66,
-      roughness: 0.8,
-      metalness: 0,
-      flatShading: true
-    }));
-
-    // Material 2 - Blue
-    mats.set(2, new THREE.MeshStandardMaterial({
-      color: 0x4dabf7,
-      roughness: 0.8,
-      metalness: 0,
-      flatShading: true
-    }));
-
-    // Material 3 - Yellow
-    mats.set(3, new THREE.MeshStandardMaterial({
-      color: 0xffd43b,
-      roughness: 0.8,
-      metalness: 0,
-      flatShading: true
-    }));
-
-    // Material 4 - Purple
-    mats.set(4, new THREE.MeshStandardMaterial({
-      color: 0xda77f2,
-      roughness: 0.8,
-      metalness: 0,
-      flatShading: true
-    }));
+      mats.set(id, threeMaterial);
+    });
 
     return mats;
   }, []);

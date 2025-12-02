@@ -2,11 +2,11 @@ import * as THREE from 'three';
 import type { Chunk } from './types';
 
 export class InstancedVoxelRenderer {
-  private instancedMeshes: Map<number, THREE.InstancedMesh>;
+  private instancedMeshes: Map<string, THREE.InstancedMesh>;
   private geometry: THREE.BoxGeometry;
 
   constructor(
-    materials: Map<number, THREE.Material>,
+    materials: Map<string, THREE.Material>,
     maxVoxelsPerMaterial = 10000
   ) {
     this.instancedMeshes = new Map();
@@ -30,7 +30,7 @@ export class InstancedVoxelRenderer {
 
   updateInstances(chunk: Chunk) {
     // Group voxels by material
-    const voxelsByMaterial = new Map<number, Array<[number, number, number]>>();
+    const voxelsByMaterial = new Map<string, Array<[number, number, number]>>();
 
     chunk.voxels.forEach((voxel, coord) => {
       if (!voxelsByMaterial.has(voxel.materialId)) {

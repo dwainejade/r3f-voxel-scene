@@ -1,7 +1,10 @@
 import { create } from "zustand";
-import type { Chunk, VoxelData, Scene } from "../core/types";
+import type { Chunk, VoxelData, Scene, Light, LightType } from "../core/types";
+import type { AssetLibrary } from "../core/assets";
 import { worldToChunk, chunkKey, voxelKey } from "../core/utils";
-import { buildExampleScene } from "../core/sceneBuilder";
+import { buildExampleScene, buildCozyRoom } from "../core/sceneBuilder";
+import { getAllMaterials } from "../core/materials";
+import { createDefaultAssetLibrary } from "../core/assets";
 
 const MAX_VOXELS = 1000000; // 1 million voxels for stress testing
 const GRID_SIZE = 100; // 10x10x10 grid
@@ -14,13 +17,20 @@ interface VoxelStore {
   gridSize: number;
   editMode: boolean;
   selectedVoxel: [number, number, number] | null;
-  currentMaterial: number;
+  currentMaterial: string;
   sceneVersion: number;
   voxelCount: number;
   planeMode: PlaneMode;
   planePosition: number;
   placementMode: PlacementMode;
   previewVoxel: [number, number, number] | null;
+
+  // Light management
+  lights: Light[];
+  selectedLight: string | null;
+
+  // Asset library
+  assetLibrary: AssetLibrary;
 
   // Actions - Voxel Operations
   setVoxel: (x: number, y: number, z: number, voxel: VoxelData) => void;
@@ -36,12 +46,13 @@ interface VoxelStore {
   setEditMode: (enabled: boolean) => void;
 
   // Actions - Material Selection
-  setCurrentMaterial: (materialId: number) => void;
+  setCurrentMaterial: (materialId: string) => void;
 
   // Actions - Scene Management
   clearScene: () => void;
   stressTest: (count: number) => void;
   buildExampleDockScene: () => void;
+  buildCozyRoomScene: () => void;
 
   // Actions - Plane Mode
   setPlaneMode: (mode: PlaneMode) => void;
@@ -51,6 +62,15 @@ interface VoxelStore {
   // Actions - Placement Mode
   setPlacementMode: (mode: PlacementMode) => void;
   setPreviewVoxel: (pos: [number, number, number] | null) => void;
+
+  // Actions - Light Management
+  addLight: (type: LightType, position: [number, number, number]) => void;
+  removeLight: (id: string) => void;
+  updateLight: (id: string, updates: Partial<Light>) => void;
+  selectLight: (id: string | null) => void;
+
+  // Actions - Asset Management
+  placeAsset: (assetId: string, x: number, y: number, z: number) => void;
 }
 
 export const useVoxelStore = create<VoxelStore>((set, get) => ({
@@ -58,13 +78,16 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   gridSize: GRID_SIZE,
   editMode: true,
   selectedVoxel: null,
-  currentMaterial: 0,
+  currentMaterial: 'white',
   sceneVersion: 0,
   voxelCount: 0,
   planeMode: "y",
   planePosition: 0,
   placementMode: "plane",
   previewVoxel: null,
+  lights: [],
+  selectedLight: null,
+  assetLibrary: createDefaultAssetLibrary(),
 
   setVoxel: (x, y, z, voxel) => {
     const state = get();
@@ -207,6 +230,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     // This ensures all positions are attempted without gaps
     const targetCount = Math.min(count, MAX_VOXELS);
     const chunkCount = Math.ceil(Math.sqrt(targetCount / 256)); // ~16 voxels per chunk side
+    const materials = getAllMaterials();
 
     for (let cx = 0; cx < chunkCount && placed < targetCount; cx++) {
       for (let cy = 0; cy < chunkCount && placed < targetCount; cy++) {
@@ -220,7 +244,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
                 const key = voxelKey(lx, ly, lz);
 
                 if (!chunk.voxels.has(key)) {
-                  const materialId = placed % 5; // Cycle through 5 materials
+                  const materialId = materials[placed % materials.length].id;
                   chunk.voxels.set(key, { materialId });
                   placed++;
                 }
@@ -262,7 +286,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     // Build the scene
     let voxelCount = 0;
     const buildAPI = {
-      setVoxel: (x: number, y: number, z: number, materialId: number) => {
+      setVoxel: (x: number, y: number, z: number, materialId: string) => {
         const gridSize = state.gridSize;
         const half = Math.floor(gridSize / 2);
 
@@ -297,5 +321,109 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
       voxelCount,
       sceneVersion: get().sceneVersion + 1,
     });
+  },
+
+  buildCozyRoomScene: () => {
+    const state = get();
+
+    // Clear scene first
+    set({
+      scene: { chunks: new Map(), chunkSize: 16 },
+      selectedVoxel: null,
+      sceneVersion: 0,
+      voxelCount: 0,
+    });
+
+    // Build the scene
+    let voxelCount = 0;
+    const buildAPI = {
+      setVoxel: (x: number, y: number, z: number, materialId: string) => {
+        const gridSize = state.gridSize;
+        const half = Math.floor(gridSize / 2);
+
+        // Clamp coordinates
+        const clampedX = Math.max(-half, Math.min(half, Math.round(x)));
+        const clampedY = Math.max(-half, Math.min(half, Math.round(y)));
+        const clampedZ = Math.max(-half, Math.min(half, Math.round(z)));
+
+        // Check if voxel already exists
+        const existing = get().getVoxel(clampedX, clampedY, clampedZ);
+        if (existing) return;
+
+        const { chunkSize } = get().scene;
+        const { chunkX, chunkY, chunkZ, localX, localY, localZ } = worldToChunk(
+          clampedX,
+          clampedY,
+          clampedZ,
+          chunkSize
+        );
+
+        const chunk = get().getOrCreateChunk(chunkX, chunkY, chunkZ);
+        const key = voxelKey(localX, localY, localZ);
+        chunk.voxels.set(key, { materialId });
+        chunk.dirty = true;
+        voxelCount++;
+      },
+    };
+
+    buildCozyRoom(buildAPI);
+
+    set({
+      voxelCount,
+      sceneVersion: get().sceneVersion + 1,
+    });
+  },
+
+  addLight: (type, position) => {
+    const id = `light-${Date.now()}-${Math.random()}`;
+    const newLight: Light = {
+      id,
+      type,
+      position,
+      color: '#FFFFFF',
+      intensity: type === 'directional' ? 1 : 0.8,
+      castShadow: true,
+      ...(type === 'point' && { distance: 100 }),
+      ...(type === 'spot' && { distance: 100, angle: Math.PI / 6, penumbra: 0.5 }),
+      ...(type === 'directional' && { target: [0, 0, 0] }),
+    };
+
+    set((state) => ({
+      lights: [...state.lights, newLight],
+      selectedLight: id,
+    }));
+  },
+
+  removeLight: (id) => {
+    set((state) => ({
+      lights: state.lights.filter((light) => light.id !== id),
+      selectedLight: state.selectedLight === id ? null : state.selectedLight,
+    }));
+  },
+
+  updateLight: (id, updates) => {
+    set((state) => ({
+      lights: state.lights.map((light) =>
+        light.id === id ? { ...light, ...updates } : light
+      ),
+    }));
+  },
+
+  selectLight: (id) => {
+    set({ selectedLight: id });
+  },
+
+  placeAsset: (assetId, x, y, z) => {
+    const state = get();
+    const asset = state.assetLibrary.assets.get(assetId);
+    if (!asset) return;
+
+    const buildAPI = {
+      setVoxel: (ox: number, oy: number, oz: number, materialId: string) => {
+        state.setVoxel(x + ox, y + oy, z + oz, { materialId });
+      },
+    };
+
+    asset.builder(buildAPI, 0, 0, 0);
   },
 }));

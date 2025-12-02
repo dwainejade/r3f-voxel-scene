@@ -1,4 +1,5 @@
 import { useVoxelStore } from "../store/voxelStore";
+import { getMaterialById } from "../core/materials";
 
 export default function VoxelPreview() {
   const previewVoxel = useVoxelStore((state) => state.previewVoxel);
@@ -7,26 +8,22 @@ export default function VoxelPreview() {
   if (!previewVoxel) return null;
 
   const [x, y, z] = previewVoxel;
+  const material = getMaterialById(currentMaterial);
 
-  // Material colors (must match those in ChunkRenderer)
-  const materialColors = [
-    0xff6b6b, // Red
-    0x51cf66, // Green
-    0x4dabf7, // Blue
-    0xffd43b, // Yellow
-    0xda77f2, // Purple
-  ];
+  if (!material) return null;
 
   return (
     <mesh position={[x, y, z]}>
       <boxGeometry args={[1, 1, 1]} />
       <meshStandardMaterial
-        color={materialColors[currentMaterial]}
+        color={material.color}
         transparent
-        opacity={0.5}
+        opacity={0.6}
         wireframe={false}
-        emissive={materialColors[currentMaterial]}
-        emissiveIntensity={0.3}
+        emissive={material.emissive || material.color}
+        emissiveIntensity={material.emissiveIntensity ? material.emissiveIntensity * 0.5 : 0.2}
+        roughness={material.roughness}
+        metalness={material.metalness}
       />
     </mesh>
   );

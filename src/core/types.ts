@@ -1,8 +1,35 @@
 export type VoxelCoord = `${number},${number},${number}`;
 
+export interface MaterialDefinition {
+  id: string;
+  name: string;
+  color: string;
+  metalness: number;
+  roughness: number;
+  emissive?: string;
+  emissiveIntensity?: number;
+}
+
 export interface VoxelData {
-  materialId: number;
-  color?: string;
+  materialId: string;
+}
+
+export type LightType = 'directional' | 'point' | 'spot';
+
+export interface Light {
+  id: string;
+  type: LightType;
+  position: [number, number, number];
+  color: string;
+  intensity: number;
+  castShadow: boolean;
+  // Directional specific
+  target?: [number, number, number];
+  // Point/Spot specific
+  distance?: number;
+  // Spot specific
+  angle?: number;
+  penumbra?: number;
 }
 
 export interface Chunk {

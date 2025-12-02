@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Stats } from "@react-three/drei";
+import { OrbitControls, Stats, Environment } from "@react-three/drei";
 import { useVoxelStore } from "../store/voxelStore";
 import ChunkRenderer from "./ChunkRenderer";
 import VoxelEditor from "./VoxelEditor";
 import PlaneGuide from "./PlaneGuide";
 import VoxelPreview from "./VoxelPreview";
+import LightRenderer from "./LightRenderer";
 
 function OrbitControlsWrapper() {
   const controlsRef = useRef<any>(null);
@@ -60,10 +61,11 @@ export default function VoxelCanvas() {
       }}
     >
       <Stats />
-      <ambientLight intensity={2} />
-      {/* <directionalLight
+      <Environment preset="apartment" />
+      {/* <ambientLight intensity={0.4} /> */}
+      <directionalLight
         position={[30, 40, 30]}
-        intensity={0.4}
+        intensity={0.6}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -71,14 +73,14 @@ export default function VoxelCanvas() {
         shadow-camera-right={80}
         shadow-camera-top={80}
         shadow-camera-bottom={-80}
-      /> */}
-      <hemisphereLight args={[0xf0e6d2, 0xd4c5b0, 0.8]} />
+      />
 
       {chunks.map((chunk) => (
         <ChunkRenderer key={`${chunk.x},${chunk.y},${chunk.z}`} chunk={chunk} />
       ))}
 
       <VoxelPreview />
+      <LightRenderer />
 
       <OrbitControlsWrapper />
       {/* <gridHelper args={[gridSize, gridSize]} /> */}

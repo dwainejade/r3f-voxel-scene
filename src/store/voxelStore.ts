@@ -4,7 +4,11 @@ import type { AssetLibrary } from "../core/assets";
 import { worldToChunk, chunkKey, voxelKey } from "../core/utils";
 import { buildExampleScene, buildCozyRoom } from "../core/sceneBuilder";
 import { getAllMaterials } from "../core/materials";
-import { createDefaultAssetLibrary } from "../core/assets";
+import { createDefaultAssetLibrary, registerAsset } from "../core/assets";
+import { generateAssetId, calculateBounds, extractVoxelsFromScene, createAssetFromExport } from "../core/assetExport";
+import { loadAssetsFromLibrary } from "../core/assetLoader";
+import { rotateVoxels } from "../core/rotationUtils";
+import type { ExportedVoxel } from "../core/assetExport";
 
 const MAX_VOXELS = 1000000; // 1 million voxels for stress testing
 const GRID_SIZE = 100; // 10x10x10 grid
@@ -12,6 +16,9 @@ const GRID_SIZE = 100; // 10x10x10 grid
 type PlaneMode = "x" | "y" | "z";
 type PlacementMode = "plane" | "free";
 type VoxelMode = "select" | "add" | "remove";
+type AppMode = "voxel-editing" | "asset-creation";
+
+export type AssetCategory = 'furniture' | 'decoration' | 'structure' | 'plant' | 'other';
 
 interface VoxelStore {
   scene: Scene;
@@ -44,6 +51,16 @@ interface VoxelStore {
   selectedAsset: string | null;
   getAssetAtVoxel: (x: number, y: number, z: number) => string | null;
   getAssetVoxels: (assetInstanceId: string) => Array<[number, number, number]>;
+
+  // Asset Creation Mode
+  appMode: AppMode;
+  assetCreationState: {
+    isCreating: boolean;
+    assetName: string;
+    assetCategory: AssetCategory;
+    assetDescription: string;
+    creationScene: Scene; // Separate scene for asset creation
+  };
 
   // Actions - Voxel Operations
   setVoxel: (x: number, y: number, z: number, voxel: VoxelData) => void;
@@ -89,7 +106,7 @@ interface VoxelStore {
   selectLight: (id: string | null) => void;
 
   // Actions - Asset Management
-  placeAsset: (assetId: string, x: number, y: number, z: number) => void;
+  placeAsset: (assetId: string, x: number, y: number, z: number, rotation?: number) => void;
   startAssetPreview: (assetId: string) => void;
   updateAssetPreviewPosition: (x: number, y: number, z: number) => void;
   rotateAssetPreview: (direction: 1 | -1) => void;
@@ -97,6 +114,19 @@ interface VoxelStore {
   cancelAssetPreview: () => void;
   confirmAssetPreview: () => void;
   checkAssetCollision: (assetId: string, x: number, y: number, z: number) => boolean;
+
+  // Actions - App Mode Switching
+  setAppMode: (mode: AppMode) => void;
+
+  // Actions - Asset Creation
+  startAssetCreation: (name: string, category: AssetCategory) => void;
+  updateAssetCreationInfo: (name: string, category: AssetCategory, description: string) => void;
+  cancelAssetCreation: () => void;
+  saveAssetToLibrary: (name: string, category: AssetCategory, description: string) => void;
+  getAssetCreationVoxels: () => ExportedVoxel[];
+
+  // Actions - Asset Library Loading
+  loadAssetLibrary: () => Promise<void>;
 }
 
 export const useVoxelStore = create<VoxelStore>((set, get) => ({
@@ -124,6 +154,14 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   },
   placedAssets: new Map(),
   selectedAsset: null,
+  appMode: "voxel-editing",
+  assetCreationState: {
+    isCreating: false,
+    assetName: "",
+    assetCategory: "furniture",
+    assetDescription: "",
+    creationScene: { chunks: new Map(), chunkSize: 16 },
+  },
 
   getAssetAtVoxel: (x, y, z) => {
     const state = get();
@@ -188,9 +226,21 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     const clampedY = Math.max(-half, Math.min(half, Math.round(y)));
     const clampedZ = Math.max(-half, Math.min(half, Math.round(z)));
 
+    // Determine which scene to use
+    const targetScene = state.appMode === 'asset-creation' ? state.assetCreationState.creationScene : state.scene;
+    const chunkSize = targetScene.chunkSize;
+
     // Check if voxel already exists
-    const existing = state.getVoxel(clampedX, clampedY, clampedZ);
-    if (existing) {
+    const { chunkX, chunkY, chunkZ, localX, localY, localZ } = worldToChunk(
+      clampedX,
+      clampedY,
+      clampedZ,
+      chunkSize
+    );
+
+    const key = voxelKey(localX, localY, localZ);
+    const existingChunk = targetScene.chunks.get(chunkKey(chunkX, chunkY, chunkZ));
+    if (existingChunk && existingChunk.voxels.has(key)) {
       return;
     }
 
@@ -199,16 +249,19 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
       return;
     }
 
-    const { chunkSize } = state.scene;
-    const { chunkX, chunkY, chunkZ, localX, localY, localZ } = worldToChunk(
-      clampedX,
-      clampedY,
-      clampedZ,
-      chunkSize
-    );
+    // Get or create chunk
+    let chunk = targetScene.chunks.get(chunkKey(chunkX, chunkY, chunkZ));
+    if (!chunk) {
+      chunk = {
+        x: chunkX,
+        y: chunkY,
+        z: chunkZ,
+        voxels: new Map(),
+        dirty: true,
+      };
+      targetScene.chunks.set(chunkKey(chunkX, chunkY, chunkZ), chunk);
+    }
 
-    const chunk = state.getOrCreateChunk(chunkX, chunkY, chunkZ);
-    const key = voxelKey(localX, localY, localZ);
     chunk.voxels.set(key, voxel);
     chunk.dirty = true;
 
@@ -220,7 +273,11 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
 
   removeVoxel: (x, y, z) => {
     const state = get();
-    const { chunkSize } = state.scene;
+
+    // Determine which scene to use
+    const targetScene = state.appMode === 'asset-creation' ? state.assetCreationState.creationScene : state.scene;
+    const chunkSize = targetScene.chunkSize;
+
     const { chunkX, chunkY, chunkZ, localX, localY, localZ } = worldToChunk(
       x,
       y,
@@ -228,7 +285,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
       chunkSize
     );
 
-    const chunk = state.getChunk(chunkX, chunkY, chunkZ);
+    const chunk = targetScene.chunks.get(chunkKey(chunkX, chunkY, chunkZ));
     if (!chunk) return;
 
     const key = voxelKey(localX, localY, localZ);
@@ -244,7 +301,10 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   },
 
   getVoxel: (x, y, z) => {
-    const { chunkSize } = get().scene;
+    const state = get();
+    const targetScene = state.appMode === 'asset-creation' ? state.assetCreationState.creationScene : state.scene;
+    const chunkSize = targetScene.chunkSize;
+
     const { chunkX, chunkY, chunkZ, localX, localY, localZ } = worldToChunk(
       x,
       y,
@@ -252,7 +312,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
       chunkSize
     );
 
-    const chunk = get().getChunk(chunkX, chunkY, chunkZ);
+    const chunk = targetScene.chunks.get(chunkKey(chunkX, chunkY, chunkZ));
     if (!chunk) return null;
 
     const key = voxelKey(localX, localY, localZ);
@@ -506,7 +566,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     set({ selectedLight: id });
   },
 
-  placeAsset: (assetId, x, y, z) => {
+  placeAsset: (assetId, x, y, z, rotation = 0) => {
     const state = get();
     const asset = state.assetLibrary.assets.get(assetId);
     if (!asset) return;
@@ -514,20 +574,32 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     // Create a unique instance ID for this placed asset
     const instanceId = `${assetId}-${Date.now()}-${Math.random()}`;
 
-    const buildAPI = {
+    // Capture voxels from the asset builder
+    const voxels: Array<[number, number, number, string]> = [];
+    const captureAPI = {
       setVoxel: (ox: number, oy: number, oz: number, materialId: string) => {
-        state.setVoxel(x + ox, y + oy, z + oz, { materialId });
+        voxels.push([ox, oy, oz, materialId]);
       },
     };
 
-    asset.builder(buildAPI, 0, 0, 0);
+    asset.builder(captureAPI, 0, 0, 0);
 
-    // Register the placed asset
+    // Apply rotation to voxel coordinates
+    const rotatedVoxels = rotation !== 0 ? rotateVoxels(voxels.map(v => [v[0], v[1], v[2]]), rotation) : voxels.map(v => [v[0], v[1], v[2]]);
+
+    // Place rotated voxels into the scene
+    rotatedVoxels.forEach((rotatedPos, idx) => {
+      const [ox, oy, oz] = rotatedPos;
+      const materialId = voxels[idx][3];
+      state.setVoxel(x + ox, y + oy, z + oz, { materialId });
+    });
+
+    // Register the placed asset instance
     const newPlacedAssets = new Map(state.placedAssets);
     newPlacedAssets.set(instanceId, {
       assetId,
       position: [x, y, z],
-      rotation: 0,
+      rotation,
     });
 
     set({ placedAssets: newPlacedAssets });
@@ -578,7 +650,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     if (!state.assetPreview.assetId || !state.assetPreview.canPlace) return;
 
     const [x, y, z] = state.assetPreview.position;
-    state.placeAsset(state.assetPreview.assetId, x, y, z);
+    state.placeAsset(state.assetPreview.assetId, x, y, z, state.assetPreview.rotation);
 
     set({
       assetPreview: {
@@ -596,11 +668,15 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     if (!asset) return true;
 
     const { width, height, depth } = asset.bounds;
+    const rotation = state.assetPreview.rotation;
+
+    // Get rotated bounds
+    const [rotatedWidth, rotatedDepth] = rotation === 90 || rotation === 270 ? [depth, width] : [width, depth];
 
     // Check all voxels that would be occupied by this asset
-    for (let ox = 0; ox < width; ox++) {
+    for (let ox = 0; ox < rotatedWidth; ox++) {
       for (let oy = 0; oy < height; oy++) {
-        for (let oz = 0; oz < depth; oz++) {
+        for (let oz = 0; oz < rotatedDepth; oz++) {
           const voxel = state.getVoxel(x + ox, y + oy, z + oz);
           if (voxel) {
             return true; // Collision detected
@@ -634,5 +710,122 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     const newY = y + direction;
 
     state.updateAssetPreviewPosition(x, newY, z);
+  },
+
+  // Asset Creation Mode Actions
+  setAppMode: (mode) => {
+    const state = get();
+
+    if (mode === "asset-creation") {
+      // Switch to asset creation mode - clear the creation scene
+      set({
+        appMode: mode,
+        assetCreationState: {
+          isCreating: true,
+          assetName: "",
+          assetCategory: "furniture",
+          assetDescription: "",
+          creationScene: { chunks: new Map(), chunkSize: 16 },
+        },
+      });
+    } else {
+      // Switch back to voxel editing mode
+      set({
+        appMode: mode,
+        assetCreationState: {
+          ...state.assetCreationState,
+          isCreating: false,
+        },
+      });
+    }
+  },
+
+  startAssetCreation: (name, category) => {
+    set((state) => ({
+      assetCreationState: {
+        ...state.assetCreationState,
+        isCreating: true,
+        assetName: name,
+        assetCategory: category,
+      },
+    }));
+  },
+
+  updateAssetCreationInfo: (name, category, description) => {
+    set((state) => ({
+      assetCreationState: {
+        ...state.assetCreationState,
+        assetName: name,
+        assetCategory: category,
+        assetDescription: description,
+      },
+    }));
+  },
+
+  cancelAssetCreation: () => {
+    set({
+      appMode: "voxel-editing",
+      assetCreationState: {
+        isCreating: false,
+        assetName: "",
+        assetCategory: "furniture",
+        assetDescription: "",
+        creationScene: { chunks: new Map(), chunkSize: 16 },
+      },
+    });
+  },
+
+  saveAssetToLibrary: (name, category, description) => {
+    const state = get();
+
+    // Extract voxels from creation scene
+    const voxels = extractVoxelsFromScene(state.assetCreationState.creationScene, 16);
+
+    if (voxels.length === 0) {
+      console.warn('Cannot save asset with no voxels');
+      return;
+    }
+
+    // Create exported asset format
+    const bounds = calculateBounds(voxels);
+    const assetId = generateAssetId();
+
+    const exported = {
+      version: 1 as const,
+      asset: {
+        id: assetId,
+        name,
+        category,
+        description,
+        bounds,
+        voxels,
+        createdAt: new Date().toISOString(),
+      },
+    };
+
+    // Convert to Asset and add to library
+    const asset = createAssetFromExport(exported);
+    registerAsset(state.assetLibrary, asset);
+
+    // Reset creation state
+    set({
+      assetCreationState: {
+        isCreating: false,
+        assetName: "",
+        assetCategory: "furniture",
+        assetDescription: "",
+        creationScene: { chunks: new Map(), chunkSize: 16 },
+      },
+    });
+  },
+
+  getAssetCreationVoxels: () => {
+    const state = get();
+    return extractVoxelsFromScene(state.assetCreationState.creationScene, 16);
+  },
+
+  loadAssetLibrary: async () => {
+    const state = get();
+    await loadAssetsFromLibrary(state.assetLibrary);
   },
 }));

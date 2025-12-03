@@ -13,6 +13,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -65,3 +71,10 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* stats display */
+/* .stats-display {
+  position: absolute;
+  left: calc(100vw - 80px) !important;
+  z-index: 1000;
+} */

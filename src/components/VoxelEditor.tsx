@@ -15,7 +15,10 @@ export default function VoxelEditor() {
   const isShiftPaintingRef = useRef(false);
   const mouseDownPosRef = useRef({ x: 0, y: 0 });
 
-  const scene = useVoxelStore((state) => state.scene);
+  const appMode = useVoxelStore((state) => state.appMode);
+  const assetCreationState = useVoxelStore((state) => state.assetCreationState);
+  const mainScene = useVoxelStore((state) => state.scene);
+  const scene = appMode === 'asset-creation' ? assetCreationState.creationScene : mainScene;
   const currentMaterial = useVoxelStore((state) => state.currentMaterial);
   const planeMode = useVoxelStore((state) => state.planeMode);
   const planePosition = useVoxelStore((state) => state.planePosition);

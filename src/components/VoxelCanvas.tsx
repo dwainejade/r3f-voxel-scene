@@ -8,6 +8,7 @@ import PlaneGuide from "./PlaneGuide";
 import VoxelPreview from "./VoxelPreview";
 import LightRenderer from "./LightRenderer";
 import AssetPreview from "./AssetPreview";
+import AssetPreviewVoxels from "./AssetPreviewVoxels";
 import AssetGeometryPreview from "./AssetGeometryPreview";
 import VoxelSelectionHighlight from "./VoxelSelectionHighlight";
 import VoxelHoverHighlight from "./VoxelHoverHighlight";
@@ -15,7 +16,9 @@ import AssetSelectionHighlight from "./AssetSelectionHighlight";
 
 function OrbitControlsWrapper() {
   const controlsRef = useRef<any>(null);
-  const confirmAssetPreview = useVoxelStore((state) => state.confirmAssetPreview);
+  const confirmAssetPreview = useVoxelStore(
+    (state) => state.confirmAssetPreview
+  );
   const cancelAssetPreview = useVoxelStore((state) => state.cancelAssetPreview);
   const rotateAssetPreview = useVoxelStore((state) => state.rotateAssetPreview);
   const adjustAssetHeight = useVoxelStore((state) => state.adjustAssetHeight);
@@ -59,17 +62,27 @@ function OrbitControlsWrapper() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [assetPreview.assetId, assetPreview.canPlace, confirmAssetPreview, cancelAssetPreview, rotateAssetPreview, adjustAssetHeight]);
+  }, [
+    assetPreview.assetId,
+    assetPreview.canPlace,
+    confirmAssetPreview,
+    cancelAssetPreview,
+    rotateAssetPreview,
+    adjustAssetHeight,
+  ]);
 
   return <OrbitControls ref={controlsRef} />;
 }
 
 export default function VoxelCanvas() {
-  const scene = useVoxelStore((state) => state.scene);
+  const mainScene = useVoxelStore((state) => state.scene);
+  const appMode = useVoxelStore((state) => state.appMode);
+  const assetCreationState = useVoxelStore((state) => state.assetCreationState);
+  const displayScene = appMode === 'asset-creation' ? assetCreationState.creationScene : mainScene;
   // const sceneVersion = useVoxelStore((state) => state.sceneVersion);
   // const gridSize = useVoxelStore((state) => state.gridSize);
   // Create a stable array of chunks that updates when sceneVersion changes
-  const chunks = Array.from(scene.chunks.values());
+  const chunks = Array.from(displayScene.chunks.values());
 
   return (
     <Canvas
@@ -89,7 +102,7 @@ export default function VoxelCanvas() {
           "linear-gradient(to bottom, #87ceeb 10%, #cae9f5ff 40%, #ffffff 100%)",
       }}
     >
-      <Stats />
+      <Stats className="stats-display" />
       <Environment preset="apartment" />
       {/* <ambientLight intensity={0.4} /> */}
       <directionalLight
@@ -110,6 +123,7 @@ export default function VoxelCanvas() {
 
       <VoxelPreview />
       <AssetPreview />
+      <AssetPreviewVoxels />
       <AssetGeometryPreview />
       <VoxelSelectionHighlight />
       <AssetSelectionHighlight />

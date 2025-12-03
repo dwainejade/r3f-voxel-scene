@@ -4,9 +4,11 @@ import PaletteManager from './components/PaletteManager';
 import LightControls from './components/LightControls';
 import AssetBrowser from './components/AssetBrowser';
 import VoxelSelection from './components/VoxelSelection';
+import { ModeMenu } from './components/ModeMenu';
+import { AssetCreationPanel } from './components/AssetCreationPanel';
 import { useVoxelStore } from './store/voxelStore';
 import { MATERIAL_PRESETS, MATERIAL_CATEGORIES } from './core/materials';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type BuildTab = 'voxels' | 'scenes' | 'assets';
 
@@ -25,17 +27,30 @@ function App() {
   const voxelMode = useVoxelStore((state) => state.voxelMode);
   const setVoxelMode = useVoxelStore((state) => state.setVoxelMode);
   const placementMode = useVoxelStore((state) => state.placementMode);
+  const appMode = useVoxelStore((state) => state.appMode);
+  const loadAssetLibrary = useVoxelStore((state) => state.loadAssetLibrary);
 
   const [activeTab, setActiveTab] = useState<BuildTab>('voxels');
   const [expandedCategory, setExpandedCategory] = useState<string | null>('softCozy');
+
+  // Load assets from public/asset-library on mount
+  useEffect(() => {
+    loadAssetLibrary();
+  }, [loadAssetLibrary]);
 
   return (
     <div className="app">
       <div className="canvas-container">
         <VoxelCanvas />
+        <ModeMenu />
       </div>
 
       <div className="ui-panel">
+        {/* Asset Creation Mode */}
+        {appMode === 'asset-creation' ? (
+          <AssetCreationPanel />
+        ) : (
+          <>
         {/* Tab Navigation */}
         <div className="panel-tabs">
           <button
@@ -191,6 +206,8 @@ function App() {
             <AssetBrowser />
           )}
         </div>
+          </>
+        )}
       </div>
     </div>
   );

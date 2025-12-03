@@ -44,16 +44,20 @@ export default function AssetPreview() {
   // Calculate rotated dimensions (swap width/depth based on rotation)
   const rotatedWidth = (assetPreview.rotation === 90 || assetPreview.rotation === 270) ? depth : width;
   const rotatedDepth = (assetPreview.rotation === 90 || assetPreview.rotation === 270) ? width : depth;
-  const rotationRad = (assetPreview.rotation * Math.PI) / 180;
+
+  // Position at the center of the rotated bounding box
+  const centerX = x + rotatedWidth / 2;
+  const centerY = y + height / 2;
+  const centerZ = z + rotatedDepth / 2;
 
   return (
-    <group position={[x + rotatedWidth / 2, y + height / 2, z + rotatedDepth / 2]} rotation={[0, rotationRad, 0]}>
+    <group position={[centerX, centerY, centerZ]}>
       <mesh>
         <boxGeometry args={[rotatedWidth, height, rotatedDepth]} />
         <meshStandardMaterial
           color={color}
           transparent
-          opacity={0}
+          opacity={0.15}
           wireframe={false}
         />
         <Edges scale={1.001} threshold={15} color={color} linewidth={2} />

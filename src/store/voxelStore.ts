@@ -11,6 +11,7 @@ const GRID_SIZE = 100; // 10x10x10 grid
 
 type PlaneMode = "x" | "y" | "z";
 type PlacementMode = "plane" | "free";
+type VoxelMode = "select" | "add" | "remove";
 
 interface VoxelStore {
   scene: Scene;
@@ -23,6 +24,7 @@ interface VoxelStore {
   planeMode: PlaneMode;
   planePosition: number;
   placementMode: PlacementMode;
+  voxelMode: VoxelMode;
   previewVoxel: [number, number, number] | null;
 
   // Light management
@@ -51,6 +53,9 @@ interface VoxelStore {
   // Actions - Mode Switching
   setEditMode: (enabled: boolean) => void;
 
+  // Actions - Selection
+  setSelectedVoxel: (pos: [number, number, number] | null) => void;
+
   // Actions - Material Selection
   setCurrentMaterial: (materialId: string) => void;
 
@@ -67,6 +72,7 @@ interface VoxelStore {
 
   // Actions - Placement Mode
   setPlacementMode: (mode: PlacementMode) => void;
+  setVoxelMode: (mode: VoxelMode) => void;
   setPreviewVoxel: (pos: [number, number, number] | null) => void;
 
   // Actions - Light Management
@@ -97,6 +103,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   planeMode: "y",
   planePosition: 0,
   placementMode: "plane",
+  voxelMode: "select",
   previewVoxel: null,
   lights: [],
   selectedLight: null,
@@ -221,6 +228,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   },
 
   setEditMode: (enabled) => set({ editMode: enabled }),
+  setSelectedVoxel: (pos) => set({ selectedVoxel: pos }),
   setCurrentMaterial: (materialId) => set({ currentMaterial: materialId }),
 
   clearScene: () => {
@@ -289,6 +297,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   },
 
   setPlacementMode: (mode) => set({ placementMode: mode }),
+  setVoxelMode: (mode) => set({ voxelMode: mode }),
   setPreviewVoxel: (pos) => set({ previewVoxel: pos }),
 
   buildExampleDockScene: () => {

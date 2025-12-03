@@ -20,10 +20,12 @@ export default function VoxelEditor() {
   const planeMode = useVoxelStore((state) => state.planeMode);
   const planePosition = useVoxelStore((state) => state.planePosition);
   const placementMode = useVoxelStore((state) => state.placementMode);
+  const voxelMode = useVoxelStore((state) => state.voxelMode);
   const setVoxel = useVoxelStore((state) => state.setVoxel);
   const removeVoxel = useVoxelStore((state) => state.removeVoxel);
   const setPreviewVoxel = useVoxelStore((state) => state.setPreviewVoxel);
   const getVoxel = useVoxelStore((state) => state.getVoxel);
+  const setSelectedVoxel = useVoxelStore((state) => state.setSelectedVoxel);
 
   const placeVoxelAt = useCallback((x: number, y: number, z: number) => {
     const voxel: VoxelData = { materialId: currentMaterial };
@@ -194,26 +196,25 @@ export default function VoxelEditor() {
       e.preventDefault();
     }
 
-    const raycaster = raycasterRef.current;
-    const result = raycaster.castRay(
-      camera,
-      mousePosRef.current,
-      scene.chunks,
-      scene.chunkSize,
-      400 // Extended range for orthographic camera adjustment
-    );
-
     if (e.button === 0 && !e.shiftKey) {
-      // Left click (without shift) - place voxel only if we don't drag
-      // We'll check on mouseUp if this was a click or drag
-    } else if (e.button === 2) {
-      // Right click - remove voxel
+      // Left click (without shift) - handled in mouseUp based on voxelMode
+    } else if (e.button === 2 && voxelMode !== 'select') {
+      // Right click - remove voxel (only if not in select mode)
+      const raycaster = raycasterRef.current;
+      const result = raycaster.castRay(
+        camera,
+        mousePosRef.current,
+        scene.chunks,
+        scene.chunkSize,
+        400 // Extended range for orthographic camera adjustment
+      );
+
       if (result) {
         const [x, y, z] = result.voxel;
         removeVoxel(x, y, z);
       }
     }
-  }, [camera, scene, removeVoxel]);
+  }, [camera, scene, voxelMode, removeVoxel]);
 
   const handleContextMenu = useCallback((e: MouseEvent) => {
     e.preventDefault();
@@ -228,65 +229,101 @@ export default function VoxelEditor() {
     isDraggingRef.current = false;
     isShiftPaintingRef.current = false;
 
-    // Only place a voxel if this was a click (not a drag) and not shift+drag
+    // Only handle click if left mouse button and not shift+drag
     if (e.button === 0 && wasClick && !e.shiftKey) {
-      const raycaster = raycasterRef.current;
-      const result = raycaster.castRay(
-        camera,
-        mousePosRef.current,
-        scene.chunks,
-        scene.chunkSize,
-        400
-      );
+      // Handle based on voxel mode
+      if (voxelMode === 'select') {
+        // Select mode: click to select a voxel or asset
+        const raycaster = raycasterRef.current;
+        const result = raycaster.castRay(
+          camera,
+          mousePosRef.current,
+          scene.chunks,
+          scene.chunkSize,
+          400
+        );
 
-      if (placementMode === 'plane') {
-        const tempRaycaster = new THREE.Raycaster();
-        const mouseVec = new THREE.Vector2(mousePosRef.current.x, mousePosRef.current.y);
-        tempRaycaster.setFromCamera(mouseVec, camera);
+        if (result) {
+          const [x, y, z] = result.voxel;
+          setSelectedVoxel([x, y, z]);
+        } else {
+          setSelectedVoxel(null);
+        }
+      } else if (voxelMode === 'add') {
+        // Add mode: place a new voxel
+        const raycaster = raycasterRef.current;
+        const result = raycaster.castRay(
+          camera,
+          mousePosRef.current,
+          scene.chunks,
+          scene.chunkSize,
+          400
+        );
 
-        let x = 0, y = 0, z = 0;
-        const epsilon = 0.0001;
-        const rayOrigin = tempRaycaster.ray.origin;
-        const rayDir = tempRaycaster.ray.direction;
+        if (placementMode === 'plane') {
+          const tempRaycaster = new THREE.Raycaster();
+          const mouseVec = new THREE.Vector2(mousePosRef.current.x, mousePosRef.current.y);
+          tempRaycaster.setFromCamera(mouseVec, camera);
 
-        if (planeMode === 'y') {
-          if (Math.abs(rayDir.y) >= epsilon) {
-            const t = (planePosition - rayOrigin.y) / rayDir.y;
-            x = Math.round(rayOrigin.x + rayDir.x * t);
-            y = Math.round(planePosition);
-            z = Math.round(rayOrigin.z + rayDir.z * t);
-            placeVoxelAt(x, y, z);
-          }
-        } else if (planeMode === 'x') {
-          if (Math.abs(rayDir.x) >= epsilon) {
-            const t = (planePosition - rayOrigin.x) / rayDir.x;
-            x = Math.round(planePosition);
-            y = Math.round(rayOrigin.y + rayDir.y * t);
-            z = Math.round(rayOrigin.z + rayDir.z * t);
-            placeVoxelAt(x, y, z);
+          let x = 0, y = 0, z = 0;
+          const epsilon = 0.0001;
+          const rayOrigin = tempRaycaster.ray.origin;
+          const rayDir = tempRaycaster.ray.direction;
+
+          if (planeMode === 'y') {
+            if (Math.abs(rayDir.y) >= epsilon) {
+              const t = (planePosition - rayOrigin.y) / rayDir.y;
+              x = Math.round(rayOrigin.x + rayDir.x * t);
+              y = Math.round(planePosition);
+              z = Math.round(rayOrigin.z + rayDir.z * t);
+              placeVoxelAt(x, y, z);
+            }
+          } else if (planeMode === 'x') {
+            if (Math.abs(rayDir.x) >= epsilon) {
+              const t = (planePosition - rayOrigin.x) / rayDir.x;
+              x = Math.round(planePosition);
+              y = Math.round(rayOrigin.y + rayDir.y * t);
+              z = Math.round(rayOrigin.z + rayDir.z * t);
+              placeVoxelAt(x, y, z);
+            }
+          } else {
+            if (Math.abs(rayDir.z) >= epsilon) {
+              const t = (planePosition - rayOrigin.z) / rayDir.z;
+              x = Math.round(rayOrigin.x + rayDir.x * t);
+              y = Math.round(rayOrigin.y + rayDir.y * t);
+              z = Math.round(planePosition);
+              placeVoxelAt(x, y, z);
+            }
           }
         } else {
-          if (Math.abs(rayDir.z) >= epsilon) {
-            const t = (planePosition - rayOrigin.z) / rayDir.z;
-            x = Math.round(rayOrigin.x + rayDir.x * t);
-            y = Math.round(rayOrigin.y + rayDir.y * t);
-            z = Math.round(planePosition);
-            placeVoxelAt(x, y, z);
+          // FREE MODE: Place adjacent to hit voxel
+          if (result) {
+            const [hitX, hitY, hitZ] = result.voxel;
+            const [normalX, normalY, normalZ] = result.normal;
+            const newX = hitX + normalX;
+            const newY = hitY + normalY;
+            const newZ = hitZ + normalZ;
+            placeVoxelAt(newX, newY, newZ);
           }
         }
-      } else {
-        // FREE MODE: Place adjacent to hit voxel
+      } else if (voxelMode === 'remove') {
+        // Remove mode: delete a voxel
+        const raycaster = raycasterRef.current;
+        const result = raycaster.castRay(
+          camera,
+          mousePosRef.current,
+          scene.chunks,
+          scene.chunkSize,
+          400
+        );
+
         if (result) {
-          const [hitX, hitY, hitZ] = result.voxel;
-          const [normalX, normalY, normalZ] = result.normal;
-          const newX = hitX + normalX;
-          const newY = hitY + normalY;
-          const newZ = hitZ + normalZ;
-          placeVoxelAt(newX, newY, newZ);
+          const [x, y, z] = result.voxel;
+          removeVoxel(x, y, z);
         }
       }
     }
-  }, [camera, scene, placementMode, planeMode, planePosition, placeVoxelAt]);
+  }, [camera, scene, voxelMode, placementMode, planeMode, planePosition, placeVoxelAt, setSelectedVoxel, removeVoxel]);
 
   // Track mouse position
   useEffect(() => {

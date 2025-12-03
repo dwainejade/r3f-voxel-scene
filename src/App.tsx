@@ -3,6 +3,7 @@ import VoxelCanvas from './components/VoxelCanvas';
 import PaletteManager from './components/PaletteManager';
 import LightControls from './components/LightControls';
 import AssetBrowser from './components/AssetBrowser';
+import VoxelSelection from './components/VoxelSelection';
 import { useVoxelStore } from './store/voxelStore';
 import { MATERIAL_PRESETS, MATERIAL_CATEGORIES } from './core/materials';
 import { useState } from 'react';
@@ -21,8 +22,9 @@ function App() {
   const clearScene = useVoxelStore((state) => state.clearScene);
   const buildExampleDockScene = useVoxelStore((state) => state.buildExampleDockScene);
   const buildCozyRoomScene = useVoxelStore((state) => state.buildCozyRoomScene);
+  const voxelMode = useVoxelStore((state) => state.voxelMode);
+  const setVoxelMode = useVoxelStore((state) => state.setVoxelMode);
   const placementMode = useVoxelStore((state) => state.placementMode);
-  const setPlacementMode = useVoxelStore((state) => state.setPlacementMode);
 
   const [activeTab, setActiveTab] = useState<BuildTab>('voxels');
   const [expandedCategory, setExpandedCategory] = useState<string | null>('softCozy');
@@ -63,25 +65,33 @@ function App() {
         <div className="panel-content">
           {activeTab === 'voxels' && (
             <>
+              <VoxelSelection />
+
               <div className="panel-section">
                 <h2>Stats</h2>
                 <p>Voxels: {voxelCount.toLocaleString()} / 1,000,000</p>
               </div>
 
               <div className="panel-section">
-                <h2>Placement Mode</h2>
+                <h2>Voxel Mode</h2>
                 <div className="mode-buttons">
                   <button
-                    className={`mode-btn ${placementMode === 'plane' ? 'active' : ''}`}
-                    onClick={() => setPlacementMode('plane')}
+                    className={`mode-btn ${voxelMode === 'select' ? 'active' : ''}`}
+                    onClick={() => setVoxelMode('select')}
                   >
-                    Plane
+                    Select
                   </button>
                   <button
-                    className={`mode-btn ${placementMode === 'free' ? 'active' : ''}`}
-                    onClick={() => setPlacementMode('free')}
+                    className={`mode-btn ${voxelMode === 'add' ? 'active' : ''}`}
+                    onClick={() => setVoxelMode('add')}
                   >
-                    Free (MC)
+                    Add
+                  </button>
+                  <button
+                    className={`mode-btn ${voxelMode === 'remove' ? 'active' : ''}`}
+                    onClick={() => setVoxelMode('remove')}
+                  >
+                    Remove
                   </button>
                 </div>
               </div>

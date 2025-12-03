@@ -8,6 +8,7 @@ import PlaneGuide from "./PlaneGuide";
 import VoxelPreview from "./VoxelPreview";
 import LightRenderer from "./LightRenderer";
 import AssetPreview from "./AssetPreview";
+import VoxelSelectionHighlight from "./VoxelSelectionHighlight";
 
 function OrbitControlsWrapper() {
   const controlsRef = useRef<any>(null);
@@ -106,6 +107,7 @@ export default function VoxelCanvas() {
 
       <VoxelPreview />
       <AssetPreview />
+      <VoxelSelectionHighlight />
       <LightRenderer />
 
       <OrbitControlsWrapper />

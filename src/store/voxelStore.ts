@@ -18,6 +18,7 @@ interface VoxelStore {
   gridSize: number;
   editMode: boolean;
   selectedVoxel: [number, number, number] | null;
+  hoveredVoxel: [number, number, number] | null;
   currentMaterial: string;
   sceneVersion: number;
   voxelCount: number;
@@ -55,6 +56,7 @@ interface VoxelStore {
 
   // Actions - Selection
   setSelectedVoxel: (pos: [number, number, number] | null) => void;
+  setHoveredVoxel: (pos: [number, number, number] | null) => void;
 
   // Actions - Material Selection
   setCurrentMaterial: (materialId: string) => void;
@@ -97,6 +99,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   gridSize: GRID_SIZE,
   editMode: true,
   selectedVoxel: null,
+  hoveredVoxel: null,
   currentMaterial: 'white',
   sceneVersion: 0,
   voxelCount: 0,
@@ -229,6 +232,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
 
   setEditMode: (enabled) => set({ editMode: enabled }),
   setSelectedVoxel: (pos) => set({ selectedVoxel: pos }),
+  setHoveredVoxel: (pos) => set({ hoveredVoxel: pos }),
   setCurrentMaterial: (materialId) => set({ currentMaterial: materialId }),
 
   clearScene: () => {

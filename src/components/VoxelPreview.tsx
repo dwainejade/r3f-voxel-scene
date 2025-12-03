@@ -5,9 +5,12 @@ export default function VoxelPreview() {
   const previewVoxel = useVoxelStore((state) => state.previewVoxel);
   const currentMaterial = useVoxelStore((state) => state.currentMaterial);
   const assetPreview = useVoxelStore((state) => state.assetPreview);
+  const voxelMode = useVoxelStore((state) => state.voxelMode);
 
-  // Hide voxel preview when placing assets
-  if (!previewVoxel || assetPreview.assetId) return null;
+  // Hide voxel preview when:
+  // - placing assets
+  // - in select or remove mode (no preview needed)
+  if (!previewVoxel || assetPreview.assetId || voxelMode === 'select' || voxelMode === 'remove') return null;
 
   const [x, y, z] = previewVoxel;
   const material = getMaterialById(currentMaterial);

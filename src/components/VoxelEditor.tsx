@@ -26,6 +26,7 @@ export default function VoxelEditor() {
   const setPreviewVoxel = useVoxelStore((state) => state.setPreviewVoxel);
   const getVoxel = useVoxelStore((state) => state.getVoxel);
   const setSelectedVoxel = useVoxelStore((state) => state.setSelectedVoxel);
+  const setHoveredVoxel = useVoxelStore((state) => state.setHoveredVoxel);
 
   const placeVoxelAt = useCallback((x: number, y: number, z: number) => {
     const voxel: VoxelData = { materialId: currentMaterial };
@@ -178,7 +179,19 @@ export default function VoxelEditor() {
         setPreviewVoxel(null);
       }
     }
-  }, [canvas, camera, scene, planeMode, planePosition, placementMode, setPreviewVoxel, getVoxel, placeVoxelAt]);
+
+    // Handle hovered voxel for remove mode
+    if (voxelMode === 'remove') {
+      if (result) {
+        const [x, y, z] = result.voxel;
+        setHoveredVoxel([x, y, z]);
+      } else {
+        setHoveredVoxel(null);
+      }
+    } else {
+      setHoveredVoxel(null);
+    }
+  }, [canvas, camera, scene, planeMode, planePosition, placementMode, voxelMode, setPreviewVoxel, setHoveredVoxel, getVoxel, placeVoxelAt]);
 
   const handleMouseDown = useCallback((e: MouseEvent) => {
     // Prevent right-click context menu
@@ -329,6 +342,7 @@ export default function VoxelEditor() {
   useEffect(() => {
     const handleMouseLeave = () => {
       setPreviewVoxel(null);
+      setHoveredVoxel(null);
       isDraggingRef.current = false;
       isShiftPaintingRef.current = false;
     };
@@ -339,7 +353,7 @@ export default function VoxelEditor() {
       canvas.removeEventListener('mousemove', handleMouseMove);
       canvas.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [canvas, handleMouseMove, setPreviewVoxel]);
+  }, [canvas, handleMouseMove, setPreviewVoxel, setHoveredVoxel]);
 
   // Handle mouse clicks
   useEffect(() => {

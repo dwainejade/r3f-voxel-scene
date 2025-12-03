@@ -30,6 +30,7 @@ export default function VoxelEditor() {
   const setSelectedVoxel = useVoxelStore((state) => state.setSelectedVoxel);
   const setHoveredVoxel = useVoxelStore((state) => state.setHoveredVoxel);
   const getAssetAtVoxel = useVoxelStore((state) => state.getAssetAtVoxel);
+  const setSelectedAsset = useVoxelStore((state) => state.setSelectedAsset);
 
   const placeVoxelAt = useCallback((x: number, y: number, z: number) => {
     const voxel: VoxelData = { materialId: currentMaterial };
@@ -270,14 +271,17 @@ export default function VoxelEditor() {
           // Check if this voxel belongs to a placed asset
           const assetAtVoxel = getAssetAtVoxel(x, y, z);
           if (assetAtVoxel) {
-            // Voxel belongs to an asset - don't allow selection
+            // Voxel belongs to an asset - select the entire asset
+            setSelectedAsset(assetAtVoxel);
             setSelectedVoxel(null);
           } else {
             // Standalone voxel - allow selection
             setSelectedVoxel([x, y, z]);
+            setSelectedAsset(null);
           }
         } else {
           setSelectedVoxel(null);
+          setSelectedAsset(null);
         }
       } else if (voxelMode === 'add') {
         // Add mode: place a new voxel
@@ -353,7 +357,7 @@ export default function VoxelEditor() {
         }
       }
     }
-  }, [camera, scene, voxelMode, placementMode, planeMode, planePosition, placeVoxelAt, setSelectedVoxel, removeVoxel, assetPreview.assetId, assetPreview.canPlace, confirmAssetPreview, getAssetAtVoxel]);
+  }, [camera, scene, voxelMode, placementMode, planeMode, planePosition, placeVoxelAt, setSelectedVoxel, setSelectedAsset, removeVoxel, assetPreview.assetId, assetPreview.canPlace, confirmAssetPreview, getAssetAtVoxel]);
 
   // Track mouse position
   useEffect(() => {

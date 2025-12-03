@@ -11,6 +11,7 @@ import AssetPreview from "./AssetPreview";
 import AssetGeometryPreview from "./AssetGeometryPreview";
 import VoxelSelectionHighlight from "./VoxelSelectionHighlight";
 import VoxelHoverHighlight from "./VoxelHoverHighlight";
+import AssetSelectionHighlight from "./AssetSelectionHighlight";
 
 function OrbitControlsWrapper() {
   const controlsRef = useRef<any>(null);
@@ -111,6 +112,7 @@ export default function VoxelCanvas() {
       <AssetPreview />
       <AssetGeometryPreview />
       <VoxelSelectionHighlight />
+      <AssetSelectionHighlight />
       <VoxelHoverHighlight />
       <LightRenderer />
 

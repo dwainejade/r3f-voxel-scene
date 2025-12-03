@@ -41,7 +41,9 @@ interface VoxelStore {
     canPlace: boolean;
   };
   placedAssets: Map<string, { assetId: string; position: [number, number, number]; rotation: number }>;
+  selectedAsset: string | null;
   getAssetAtVoxel: (x: number, y: number, z: number) => string | null;
+  getAssetVoxels: (assetInstanceId: string) => Array<[number, number, number]>;
 
   // Actions - Voxel Operations
   setVoxel: (x: number, y: number, z: number, voxel: VoxelData) => void;
@@ -59,6 +61,7 @@ interface VoxelStore {
   // Actions - Selection
   setSelectedVoxel: (pos: [number, number, number] | null) => void;
   setHoveredVoxel: (pos: [number, number, number] | null) => void;
+  setSelectedAsset: (assetInstanceId: string | null) => void;
 
   // Actions - Material Selection
   setCurrentMaterial: (materialId: string) => void;
@@ -120,6 +123,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     canPlace: false,
   },
   placedAssets: new Map(),
+  selectedAsset: null,
 
   getAssetAtVoxel: (x, y, z) => {
     const state = get();
@@ -143,6 +147,35 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
       }
     }
     return null;
+  },
+
+  getAssetVoxels: (assetInstanceId) => {
+    const state = get();
+    const asset = state.placedAssets.get(assetInstanceId);
+    if (!asset) return [];
+
+    const assetDef = state.assetLibrary.assets.get(asset.assetId);
+    if (!assetDef) return [];
+
+    const voxels: Array<[number, number, number]> = [];
+    const baseX = asset.position[0];
+    const baseY = asset.position[1];
+    const baseZ = asset.position[2];
+
+    // Capture voxels from asset builder
+    const captureAPI = {
+      setVoxel: (x: number, y: number, z: number) => {
+        voxels.push([baseX + x, baseY + y, baseZ + z]);
+      },
+    };
+
+    try {
+      assetDef.builder(captureAPI, 0, 0, 0);
+    } catch (e) {
+      console.error('Error building asset voxels:', e);
+    }
+
+    return voxels;
   },
 
   setVoxel: (x, y, z, voxel) => {
@@ -260,6 +293,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   setEditMode: (enabled) => set({ editMode: enabled }),
   setSelectedVoxel: (pos) => set({ selectedVoxel: pos }),
   setHoveredVoxel: (pos) => set({ hoveredVoxel: pos }),
+  setSelectedAsset: (assetInstanceId) => set({ selectedAsset: assetInstanceId }),
   setCurrentMaterial: (materialId) => set({ currentMaterial: materialId }),
 
   clearScene: () => {

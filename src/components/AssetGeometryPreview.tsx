@@ -1,6 +1,6 @@
 import { useVoxelStore } from '../store/voxelStore';
 import { getMaterialById } from '../core/materials';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 
 export default function AssetGeometryPreview() {
   const assetPreview = useVoxelStore((state) => state.assetPreview);

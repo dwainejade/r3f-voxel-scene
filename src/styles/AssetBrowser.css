@@ -1,77 +1,150 @@
 .asset-browser {
-  margin-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 0;
+  padding-right: 16px;
+  border-right: 1px solid #444;
+  flex-shrink: 0;
+  min-width: max-content;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
 }
 
 .asset-browser h2 {
   margin-top: 0;
+  margin: 0 0 6px 0;
   color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
 }
 
-.placement-controls {
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
-}
-
-.placement-controls h3 {
-  font-size: 0.9rem;
-  margin: 0 0 0.8rem 0;
-  color: #ccc;
-}
-
-.offset-inputs {
+.placement-status {
   display: flex;
-  gap: 0.8rem;
+  gap: 6px;
+  align-items: center;
+  padding: 6px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
   flex-wrap: wrap;
 }
 
-.offset-inputs label {
+.status-indicator {
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: bold;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.status-indicator.can-place {
+  background: rgba(100, 200, 100, 0.3);
+  color: #7eff7e;
+  border: 1px solid rgba(100, 200, 100, 0.6);
+}
+
+.status-indicator.collision {
+  background: rgba(255, 100, 100, 0.3);
+  color: #ff9999;
+  border: 1px solid rgba(255, 100, 100, 0.6);
+}
+
+.adjustment-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.adjust-btn {
+  padding: 4px 6px;
+  background: rgba(100, 150, 255, 0.4);
+  border: 1px solid rgba(100, 150, 255, 0.6);
+  color: #aef;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: bold;
+  transition: all 0.2s;
+  min-width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  color: #aaa;
+  justify-content: center;
 }
 
-.offset-inputs input {
-  width: 60px;
-  padding: 0.3rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+.adjust-btn:hover {
+  background: rgba(100, 150, 255, 0.6);
+  border-color: rgba(100, 150, 255, 0.9);
   color: #fff;
-  border-radius: 2px;
-  font-size: 0.85rem;
 }
 
-.offset-inputs input:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.15);
+.adjust-btn:active {
+  transform: scale(0.95);
+}
+
+.confirm-btn,
+.cancel-btn {
+  padding: 4px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: bold;
+  border: 1px solid;
+  transition: all 0.2s;
+  min-width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-btn {
+  background: rgba(100, 200, 100, 0.5);
+  border-color: rgba(100, 200, 100, 0.8);
+  color: #fff;
+}
+
+.confirm-btn:hover:not(:disabled) {
+  background: rgba(100, 200, 100, 0.8);
+  border-color: rgba(100, 200, 100, 1);
+}
+
+.confirm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
+  background: rgba(200, 100, 100, 0.5);
+  border-color: rgba(200, 100, 100, 0.8);
+  color: #fff;
+}
+
+.cancel-btn:hover {
+  background: rgba(200, 100, 100, 0.8);
+  border-color: rgba(200, 100, 100, 1);
 }
 
 .asset-categories {
-  margin-bottom: 1.5rem;
-}
-
-.asset-categories h3 {
-  font-size: 0.9rem;
-  margin: 0 0 0.8rem 0;
-  color: #ccc;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .category-btn {
   display: inline-block;
-  padding: 0.5rem 1rem;
-  margin: 0.3rem;
+  padding: 4px 8px;
   background: rgba(100, 150, 255, 0.2);
   border: 1px solid rgba(100, 150, 255, 0.5);
   color: #aef;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 10px;
+  font-weight: bold;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .category-btn:hover {
@@ -85,80 +158,78 @@
   color: #fff;
 }
 
-.asset-list {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-  padding: 1rem;
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.asset-list h3 {
-  font-size: 0.9rem;
-  margin: 0 0 0.8rem 0;
-  color: #ccc;
+.asset-grid-section {
+  margin-bottom: 0;
+  padding-right: 16px;
+  border-right: 1px solid #444;
+  flex-shrink: 0;
+  min-width: max-content;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
 }
 
 .no-assets {
   color: #888;
-  font-size: 0.85rem;
+  font-size: 11px;
   margin: 0;
-  padding: 1rem;
+  padding: 8px;
   text-align: center;
 }
 
-.asset-item {
+.asset-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 60px);
+  grid-template-rows: repeat(2, 60px);
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.asset-card {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 0.8rem;
-  margin-bottom: 0.8rem;
-  background: rgba(0, 0, 0, 0.3);
-  border-left: 2px solid rgba(100, 150, 255, 0.5);
-  border-radius: 2px;
-  gap: 1rem;
-}
-
-.asset-info {
-  flex: 1;
-}
-
-.asset-info h4 {
-  margin: 0 0 0.3rem 0;
-  color: #fff;
-  font-size: 0.9rem;
-}
-
-.asset-info p {
-  margin: 0 0 0.4rem 0;
-  color: #aaa;
-  font-size: 0.8rem;
-}
-
-.asset-bounds {
-  color: #888;
-  font-size: 0.75rem;
-  margin-top: 0.3rem;
+  align-items: center;
+  justify-content: center;
 }
 
 .place-btn {
-  padding: 0.4rem 0.8rem;
-  background: rgba(100, 200, 100, 0.6);
+  width: 100%;
+  height: 100%;
+  padding: 4px;
+  background: rgba(100, 200, 100, 0.5);
   border: 1px solid rgba(100, 200, 100, 0.8);
   color: #fff;
   border-radius: 3px;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 10px;
+  font-weight: bold;
   white-space: nowrap;
   transition: all 0.2s;
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.2;
 }
 
-.place-btn:hover {
-  background: rgba(100, 200, 100, 1);
+.place-btn:hover:not(:disabled) {
+  background: rgba(100, 200, 100, 0.8);
   border-color: rgba(100, 200, 100, 1);
 }
 
-.place-btn:active {
+.place-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.place-btn.active {
+  background: rgba(100, 150, 255, 0.8);
+  border-color: rgba(100, 150, 255, 1);
+  box-shadow: 0 0 12px rgba(100, 150, 255, 0.6);
+}
+
+.place-btn:active:not(:disabled) {
   transform: scale(0.95);
 }

@@ -31,6 +31,12 @@ interface VoxelStore {
 
   // Asset library
   assetLibrary: AssetLibrary;
+  assetPreview: {
+    assetId: string | null;
+    position: [number, number, number];
+    rotation: number; // Rotation in degrees (0, 90, 180, 270)
+    canPlace: boolean;
+  };
 
   // Actions - Voxel Operations
   setVoxel: (x: number, y: number, z: number, voxel: VoxelData) => void;
@@ -71,6 +77,13 @@ interface VoxelStore {
 
   // Actions - Asset Management
   placeAsset: (assetId: string, x: number, y: number, z: number) => void;
+  startAssetPreview: (assetId: string) => void;
+  updateAssetPreviewPosition: (x: number, y: number, z: number) => void;
+  rotateAssetPreview: (direction: 1 | -1) => void;
+  adjustAssetHeight: (direction: 1 | -1) => void;
+  cancelAssetPreview: () => void;
+  confirmAssetPreview: () => void;
+  checkAssetCollision: (assetId: string, x: number, y: number, z: number) => boolean;
 }
 
 export const useVoxelStore = create<VoxelStore>((set, get) => ({
@@ -88,6 +101,12 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   lights: [],
   selectedLight: null,
   assetLibrary: createDefaultAssetLibrary(),
+  assetPreview: {
+    assetId: null,
+    position: [0, 0, 0],
+    rotation: 0,
+    canPlace: false,
+  },
 
   setVoxel: (x, y, z, voxel) => {
     const state = get();
@@ -425,5 +444,108 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     };
 
     asset.builder(buildAPI, 0, 0, 0);
+  },
+
+  startAssetPreview: (assetId) => {
+    const asset = get().assetLibrary.assets.get(assetId);
+    if (!asset) return;
+
+    set({
+      assetPreview: {
+        assetId,
+        position: [0, 0, 0],
+        rotation: 0,
+        canPlace: true,
+      },
+    });
+  },
+
+  updateAssetPreviewPosition: (x, y, z) => {
+    const state = get();
+    if (!state.assetPreview.assetId) return;
+
+    const canPlace = !state.checkAssetCollision(state.assetPreview.assetId, x, y, z);
+
+    set({
+      assetPreview: {
+        ...state.assetPreview,
+        position: [x, y, z],
+        canPlace,
+      },
+    });
+  },
+
+  cancelAssetPreview: () => {
+    set({
+      assetPreview: {
+        assetId: null,
+        position: [0, 0, 0],
+        rotation: 0,
+        canPlace: false,
+      },
+    });
+  },
+
+  confirmAssetPreview: () => {
+    const state = get();
+    if (!state.assetPreview.assetId || !state.assetPreview.canPlace) return;
+
+    const [x, y, z] = state.assetPreview.position;
+    state.placeAsset(state.assetPreview.assetId, x, y, z);
+
+    set({
+      assetPreview: {
+        assetId: null,
+        position: [0, 0, 0],
+        rotation: 0,
+        canPlace: false,
+      },
+    });
+  },
+
+  checkAssetCollision: (assetId, x, y, z) => {
+    const state = get();
+    const asset = state.assetLibrary.assets.get(assetId);
+    if (!asset) return true;
+
+    const { width, height, depth } = asset.bounds;
+
+    // Check all voxels that would be occupied by this asset
+    for (let ox = 0; ox < width; ox++) {
+      for (let oy = 0; oy < height; oy++) {
+        for (let oz = 0; oz < depth; oz++) {
+          const voxel = state.getVoxel(x + ox, y + oy, z + oz);
+          if (voxel) {
+            return true; // Collision detected
+          }
+        }
+      }
+    }
+
+    return false; // No collision
+  },
+
+  rotateAssetPreview: (direction) => {
+    const state = get();
+    if (!state.assetPreview.assetId) return;
+
+    const newRotation = (state.assetPreview.rotation + direction * 90) % 360;
+
+    set({
+      assetPreview: {
+        ...state.assetPreview,
+        rotation: newRotation,
+      },
+    });
+  },
+
+  adjustAssetHeight: (direction) => {
+    const state = get();
+    if (!state.assetPreview.assetId) return;
+
+    const [x, y, z] = state.assetPreview.position;
+    const newY = y + direction;
+
+    state.updateAssetPreviewPosition(x, newY, z);
   },
 }));

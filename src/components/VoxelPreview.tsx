@@ -4,8 +4,10 @@ import { getMaterialById } from "../core/materials";
 export default function VoxelPreview() {
   const previewVoxel = useVoxelStore((state) => state.previewVoxel);
   const currentMaterial = useVoxelStore((state) => state.currentMaterial);
+  const assetPreview = useVoxelStore((state) => state.assetPreview);
 
-  if (!previewVoxel) return null;
+  // Hide voxel preview when placing assets
+  if (!previewVoxel || assetPreview.assetId) return null;
 
   const [x, y, z] = previewVoxel;
   const material = getMaterialById(currentMaterial);

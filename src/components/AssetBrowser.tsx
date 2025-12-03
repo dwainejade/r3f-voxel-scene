@@ -5,74 +5,85 @@ import '../styles/AssetBrowser.css';
 
 export default function AssetBrowser() {
   const assetLibrary = useVoxelStore((state) => state.assetLibrary);
-  const planePosition = useVoxelStore((state) => state.planePosition);
-  const placeAsset = useVoxelStore((state) => state.placeAsset);
+  const assetPreview = useVoxelStore((state) => state.assetPreview);
+  const startAssetPreview = useVoxelStore((state) => state.startAssetPreview);
+  const confirmAssetPreview = useVoxelStore((state) => state.confirmAssetPreview);
+  const cancelAssetPreview = useVoxelStore((state) => state.cancelAssetPreview);
+  const rotateAssetPreview = useVoxelStore((state) => state.rotateAssetPreview);
+  const adjustAssetHeight = useVoxelStore((state) => state.adjustAssetHeight);
   const [expandedCategory, setExpandedCategory] = useState<string | null>('furniture');
-  const [placementOffset, setPlacementOffset] = useState({ x: 0, y: 0, z: 0 });
 
   const categories = Array.from(assetLibrary.categories).sort();
   const assets = expandedCategory ? getAssetsByCategory(assetLibrary, expandedCategory) : getAllAssets(assetLibrary);
 
-  const handlePlaceAsset = (assetId: string) => {
-    // Place asset at current plane position with offset
-    placeAsset(assetId, placementOffset.x, planePosition + placementOffset.y, placementOffset.z);
+  const handleStartPlacingAsset = (assetId: string) => {
+    startAssetPreview(assetId);
+  };
+
+  const handleConfirmPlacement = () => {
+    confirmAssetPreview();
+  };
+
+  const handleCancelPlacement = () => {
+    cancelAssetPreview();
   };
 
   return (
-    <div className="asset-browser panel-section">
-      <h2>Asset Library</h2>
+    <>
+      <div className="asset-browser panel-section">
+        <h2>Asset Library</h2>
 
-      <div className="placement-controls">
-        <h3>Placement Position</h3>
-        <div className="offset-inputs">
-          <label>
-            X: <input type="number" value={placementOffset.x} onChange={(e) => setPlacementOffset({ ...placementOffset, x: parseInt(e.target.value) })} />
-          </label>
-          <label>
-            Y: <input type="number" value={placementOffset.y} onChange={(e) => setPlacementOffset({ ...placementOffset, y: parseInt(e.target.value) })} />
-          </label>
-          <label>
-            Z: <input type="number" value={placementOffset.z} onChange={(e) => setPlacementOffset({ ...placementOffset, z: parseInt(e.target.value) })} />
-          </label>
+        <div className="asset-categories">
+          {categories.map((category) => (
+            <button
+              key={category}
+              className={`category-btn ${expandedCategory === category ? 'active' : ''}`}
+              onClick={() => setExpandedCategory(expandedCategory === category ? null : category)}
+            >
+              {category.charAt(0).toUpperCase() + category.slice(1)}
+            </button>
+          ))}
         </div>
-      </div>
 
-      <div className="asset-categories">
-        <h3>Categories</h3>
-        {categories.map((category) => (
-          <button
-            key={category}
-            className={`category-btn ${expandedCategory === category ? 'active' : ''}`}
-            onClick={() => setExpandedCategory(expandedCategory === category ? null : category)}
-          >
-            {category.charAt(0).toUpperCase() + category.slice(1)}
-          </button>
-        ))}
+        {assetPreview.assetId && (
+          <div className="placement-status">
+            <div className={`status-indicator ${assetPreview.canPlace ? 'can-place' : 'collision'}`}>
+              {assetPreview.canPlace ? '✓ Placing' : '✗ Collision'}
+            </div>
+            <div className="adjustment-buttons">
+              <button className="adjust-btn" onClick={() => rotateAssetPreview(-1)} title="Q">↺</button>
+              <button className="adjust-btn" onClick={() => rotateAssetPreview(1)} title="E">↻</button>
+              <button className="adjust-btn" onClick={() => adjustAssetHeight(-1)} title="↓">↓</button>
+              <button className="adjust-btn" onClick={() => adjustAssetHeight(1)} title="↑">↑</button>
+              <button className="confirm-btn" onClick={handleConfirmPlacement} disabled={!assetPreview.canPlace} title="Enter">✓</button>
+              <button className="cancel-btn" onClick={handleCancelPlacement} title="Esc">✕</button>
+            </div>
+          </div>
+        )}
       </div>
 
       {expandedCategory && (
-        <div className="asset-list">
-          <h3>{expandedCategory.charAt(0).toUpperCase() + expandedCategory.slice(1)} Assets</h3>
+        <div className="asset-grid-section panel-section">
           {assets.length === 0 ? (
             <p className="no-assets">No assets in this category</p>
           ) : (
-            assets.map((asset) => (
-              <div key={asset.id} className="asset-item">
-                <div className="asset-info">
-                  <h4>{asset.name}</h4>
-                  <p>{asset.description}</p>
-                  <div className="asset-bounds">
-                    Bounds: {asset.bounds.width} × {asset.bounds.height} × {asset.bounds.depth}
-                  </div>
+            <div className="asset-grid">
+              {assets.map((asset) => (
+                <div key={asset.id} className="asset-card">
+                  <button
+                    className={`place-btn ${assetPreview.assetId === asset.id ? 'active' : ''}`}
+                    onClick={() => handleStartPlacingAsset(asset.id)}
+                    disabled={assetPreview.assetId !== null && assetPreview.assetId !== asset.id}
+                    title={asset.name}
+                  >
+                    {asset.name.split('-')[0]}
+                  </button>
                 </div>
-                <button className="place-btn" onClick={() => handlePlaceAsset(asset.id)}>
-                  Place
-                </button>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
       )}
-    </div>
+    </>
   );
 }

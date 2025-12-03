@@ -7,14 +7,39 @@ import VoxelEditor from "./VoxelEditor";
 import PlaneGuide from "./PlaneGuide";
 import VoxelPreview from "./VoxelPreview";
 import LightRenderer from "./LightRenderer";
+import AssetPreview from "./AssetPreview";
 
 function OrbitControlsWrapper() {
   const controlsRef = useRef<any>(null);
+  const confirmAssetPreview = useVoxelStore((state) => state.confirmAssetPreview);
+  const cancelAssetPreview = useVoxelStore((state) => state.cancelAssetPreview);
+  const rotateAssetPreview = useVoxelStore((state) => state.rotateAssetPreview);
+  const adjustAssetHeight = useVoxelStore((state) => state.adjustAssetHeight);
+  const assetPreview = useVoxelStore((state) => state.assetPreview);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Shift" && controlsRef.current) {
         controlsRef.current.enabled = false;
+      }
+
+      // Asset placement shortcuts
+      if (assetPreview.assetId) {
+        if (e.key === "Enter" && assetPreview.canPlace) {
+          confirmAssetPreview();
+        } else if (e.key === "Escape") {
+          cancelAssetPreview();
+        } else if (e.key === "q" || e.key === "Q") {
+          rotateAssetPreview(-1);
+        } else if (e.key === "e" || e.key === "E") {
+          rotateAssetPreview(1);
+        } else if (e.key === "ArrowUp") {
+          adjustAssetHeight(1);
+          e.preventDefault();
+        } else if (e.key === "ArrowDown") {
+          adjustAssetHeight(-1);
+          e.preventDefault();
+        }
       }
     };
 
@@ -30,7 +55,7 @@ function OrbitControlsWrapper() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, []);
+  }, [assetPreview.assetId, assetPreview.canPlace, confirmAssetPreview, cancelAssetPreview, rotateAssetPreview, adjustAssetHeight]);
 
   return <OrbitControls ref={controlsRef} />;
 }
@@ -80,6 +105,7 @@ export default function VoxelCanvas() {
       ))}
 
       <VoxelPreview />
+      <AssetPreview />
       <LightRenderer />
 
       <OrbitControlsWrapper />

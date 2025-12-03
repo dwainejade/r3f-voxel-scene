@@ -8,6 +8,7 @@ import PlaneGuide from "./PlaneGuide";
 import VoxelPreview from "./VoxelPreview";
 import LightRenderer from "./LightRenderer";
 import AssetPreview from "./AssetPreview";
+import AssetGeometryPreview from "./AssetGeometryPreview";
 import VoxelSelectionHighlight from "./VoxelSelectionHighlight";
 import VoxelHoverHighlight from "./VoxelHoverHighlight";
 
@@ -108,6 +109,7 @@ export default function VoxelCanvas() {
 
       <VoxelPreview />
       <AssetPreview />
+      <AssetGeometryPreview />
       <VoxelSelectionHighlight />
       <VoxelHoverHighlight />
       <LightRenderer />

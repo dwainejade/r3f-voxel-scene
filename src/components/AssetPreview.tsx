@@ -53,10 +53,10 @@ export default function AssetPreview() {
         <meshStandardMaterial
           color={color}
           transparent
-          opacity={0.1}
-          wireframe={true}
+          opacity={0}
+          wireframe={false}
         />
-        <Edges scale={1.001} threshold={15} color={color} />
+        <Edges scale={1.001} threshold={15} color={color} linewidth={2} />
       </mesh>
     </group>
   );

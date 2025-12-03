@@ -40,6 +40,8 @@ interface VoxelStore {
     rotation: number; // Rotation in degrees (0, 90, 180, 270)
     canPlace: boolean;
   };
+  placedAssets: Map<string, { assetId: string; position: [number, number, number]; rotation: number }>;
+  getAssetAtVoxel: (x: number, y: number, z: number) => string | null;
 
   // Actions - Voxel Operations
   setVoxel: (x: number, y: number, z: number, voxel: VoxelData) => void;
@@ -116,6 +118,31 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     position: [0, 0, 0],
     rotation: 0,
     canPlace: false,
+  },
+  placedAssets: new Map(),
+
+  getAssetAtVoxel: (x, y, z) => {
+    const state = get();
+    // Check all placed assets to see if this voxel belongs to one
+    for (const [assetInstanceId, asset] of state.placedAssets) {
+      const assetDef = state.assetLibrary.assets.get(asset.assetId);
+      if (!assetDef) continue;
+
+      const { width, height, depth } = assetDef.bounds;
+      const posX = asset.position[0];
+      const posY = asset.position[1];
+      const posZ = asset.position[2];
+
+      // Check if voxel is within asset bounds
+      if (
+        x >= posX && x < posX + width &&
+        y >= posY && y < posY + height &&
+        z >= posZ && z < posZ + depth
+      ) {
+        return assetInstanceId;
+      }
+    }
+    return null;
   },
 
   setVoxel: (x, y, z, voxel) => {
@@ -450,6 +477,9 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     const asset = state.assetLibrary.assets.get(assetId);
     if (!asset) return;
 
+    // Create a unique instance ID for this placed asset
+    const instanceId = `${assetId}-${Date.now()}-${Math.random()}`;
+
     const buildAPI = {
       setVoxel: (ox: number, oy: number, oz: number, materialId: string) => {
         state.setVoxel(x + ox, y + oy, z + oz, { materialId });
@@ -457,6 +487,16 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
     };
 
     asset.builder(buildAPI, 0, 0, 0);
+
+    // Register the placed asset
+    const newPlacedAssets = new Map(state.placedAssets);
+    newPlacedAssets.set(instanceId, {
+      assetId,
+      position: [x, y, z],
+      rotation: 0,
+    });
+
+    set({ placedAssets: newPlacedAssets });
   },
 
   startAssetPreview: (assetId) => {

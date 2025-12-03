@@ -21,6 +21,8 @@ export default function VoxelEditor() {
   const planePosition = useVoxelStore((state) => state.planePosition);
   const placementMode = useVoxelStore((state) => state.placementMode);
   const voxelMode = useVoxelStore((state) => state.voxelMode);
+  const assetPreview = useVoxelStore((state) => state.assetPreview);
+  const confirmAssetPreview = useVoxelStore((state) => state.confirmAssetPreview);
   const setVoxel = useVoxelStore((state) => state.setVoxel);
   const removeVoxel = useVoxelStore((state) => state.removeVoxel);
   const setPreviewVoxel = useVoxelStore((state) => state.setPreviewVoxel);
@@ -244,6 +246,12 @@ export default function VoxelEditor() {
 
     // Only handle click if left mouse button and not shift+drag
     if (e.button === 0 && wasClick && !e.shiftKey) {
+      // If asset is being previewed, confirm placement instead of voxel operations
+      if (assetPreview.assetId && assetPreview.canPlace) {
+        confirmAssetPreview();
+        return;
+      }
+
       // Handle based on voxel mode
       if (voxelMode === 'select') {
         // Select mode: click to select a voxel or asset
@@ -336,7 +344,7 @@ export default function VoxelEditor() {
         }
       }
     }
-  }, [camera, scene, voxelMode, placementMode, planeMode, planePosition, placeVoxelAt, setSelectedVoxel, removeVoxel]);
+  }, [camera, scene, voxelMode, placementMode, planeMode, planePosition, placeVoxelAt, setSelectedVoxel, removeVoxel, assetPreview.assetId, assetPreview.canPlace, confirmAssetPreview]);
 
   // Track mouse position
   useEffect(() => {

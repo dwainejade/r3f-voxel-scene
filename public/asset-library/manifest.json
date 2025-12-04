@@ -1,6 +1,7 @@
 {
   "assets": [
     "blue-chair.json",
-    "neon-symbol.json"
+    "pillar.json",
+    "post.json"
   ]
 }

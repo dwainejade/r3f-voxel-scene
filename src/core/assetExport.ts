@@ -100,8 +100,8 @@ export function extractVoxelsFromScene(scene: Scene, chunkSize: number): Exporte
 
   for (const chunk of scene.chunks.values()) {
     for (const [key, voxelData] of chunk.voxels) {
-      // Parse key string format "x:y:z"
-      const [lxStr, lyStr, lzStr] = key.split(':');
+      // Parse key string format "x,y,z"
+      const [lxStr, lyStr, lzStr] = key.split(',');
       const localX = parseInt(lxStr, 10);
       const localY = parseInt(lyStr, 10);
       const localZ = parseInt(lzStr, 10);

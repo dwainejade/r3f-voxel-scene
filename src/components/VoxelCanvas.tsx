@@ -9,7 +9,6 @@ import VoxelPreview from "./VoxelPreview";
 import LightRenderer from "./LightRenderer";
 import AssetPreview from "./AssetPreview";
 import AssetPreviewVoxels from "./AssetPreviewVoxels";
-import AssetGeometryPreview from "./AssetGeometryPreview";
 import VoxelSelectionHighlight from "./VoxelSelectionHighlight";
 import VoxelHoverHighlight from "./VoxelHoverHighlight";
 import AssetSelectionHighlight from "./AssetSelectionHighlight";
@@ -124,7 +123,6 @@ export default function VoxelCanvas() {
       <VoxelPreview />
       <AssetPreview />
       <AssetPreviewVoxels />
-      <AssetGeometryPreview />
       <VoxelSelectionHighlight />
       <AssetSelectionHighlight />
       <VoxelHoverHighlight />

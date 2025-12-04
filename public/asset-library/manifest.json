@@ -1,7 +1,9 @@
 {
   "assets": [
     "blue-chair.json",
-    "pillar.json",
-    "post.json"
+    "wooden-chair.json",
+    "clothing-shelf.json",
+    "double-bins.json",
+    "triple-bins.json"
   ]
 }

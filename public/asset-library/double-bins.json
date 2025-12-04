@@ -1,0 +1,317 @@
+{
+  "version": 1,
+  "asset": {
+    "id": "custom-1764820618725-71odxvtps",
+    "name": "double bins",
+    "category": "furniture",
+    "description": "",
+    "bounds": {
+      "width": 3,
+      "height": 6,
+      "depth": 3
+    },
+    "voxels": [
+      {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "z": 1,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "z": 0,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "z": 1,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "z": 0,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "z": 1,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "z": 0,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "z": 1,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "z": 0,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "z": 0,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "z": 1,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "z": 0,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "z": 1,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 2,
+        "y": 1,
+        "z": 0,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "z": 0,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "z": 1,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 0,
+        "y": 3,
+        "z": 0,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 0,
+        "y": 3,
+        "z": 1,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 0,
+        "y": 4,
+        "z": 0,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 0,
+        "y": 4,
+        "z": 1,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 0,
+        "y": 5,
+        "z": 0,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 0,
+        "y": 5,
+        "z": 1,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 1,
+        "y": 3,
+        "z": 0,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 1,
+        "y": 3,
+        "z": 1,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 1,
+        "y": 4,
+        "z": 0,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 1,
+        "y": 5,
+        "z": 0,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 1,
+        "y": 5,
+        "z": 1,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "z": 0,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "z": 1,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 2,
+        "y": 4,
+        "z": 0,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 2,
+        "y": 5,
+        "z": 0,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 2,
+        "y": 5,
+        "z": 1,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "z": 2,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "z": 2,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "z": 2,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "z": 2,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "z": 2,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "z": 2,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "z": 2,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 2,
+        "y": 1,
+        "z": 2,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "z": 2,
+        "material": "pastelOrange"
+      },
+      {
+        "x": 0,
+        "y": 3,
+        "z": 2,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 0,
+        "y": 4,
+        "z": 2,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 0,
+        "y": 5,
+        "z": 2,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 1,
+        "y": 3,
+        "z": 2,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 1,
+        "y": 4,
+        "z": 2,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 1,
+        "y": 5,
+        "z": 2,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "z": 2,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 2,
+        "y": 4,
+        "z": 2,
+        "material": "vibrantCyan"
+      },
+      {
+        "x": 2,
+        "y": 5,
+        "z": 2,
+        "material": "vibrantCyan"
+      }
+    ],
+    "createdAt": "2025-12-04T03:56:58.725Z"
+  }
+}

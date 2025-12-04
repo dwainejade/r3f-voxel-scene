@@ -27,6 +27,12 @@ function App() {
   const voxelMode = useVoxelStore((state) => state.voxelMode);
   const setVoxelMode = useVoxelStore((state) => state.setVoxelMode);
   const placementMode = useVoxelStore((state) => state.placementMode);
+  const brushWidth = useVoxelStore((state) => state.brushWidth);
+  const brushHeight = useVoxelStore((state) => state.brushHeight);
+  const brushDepth = useVoxelStore((state) => state.brushDepth);
+  const setBrushWidth = useVoxelStore((state) => state.setBrushWidth);
+  const setBrushHeight = useVoxelStore((state) => state.setBrushHeight);
+  const setBrushDepth = useVoxelStore((state) => state.setBrushDepth);
   const appMode = useVoxelStore((state) => state.appMode);
   const loadAssetLibrary = useVoxelStore((state) => state.loadAssetLibrary);
 
@@ -140,6 +146,48 @@ function App() {
                   <p className="plane-position">Position: {planePosition}</p>
                 </div>
               )}
+
+              <div className="panel-section">
+                <h2>Brush Size</h2>
+                <div className="brush-controls">
+                  <div className="brush-input-group">
+                    <label htmlFor="brush-width">Width</label>
+                    <input
+                      id="brush-width"
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={brushWidth}
+                      onChange={(e) => setBrushWidth(parseInt(e.target.value))}
+                      className="brush-input"
+                    />
+                  </div>
+                  <div className="brush-input-group">
+                    <label htmlFor="brush-height">Height</label>
+                    <input
+                      id="brush-height"
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={brushHeight}
+                      onChange={(e) => setBrushHeight(parseInt(e.target.value))}
+                      className="brush-input"
+                    />
+                  </div>
+                  <div className="brush-input-group">
+                    <label htmlFor="brush-depth">Depth</label>
+                    <input
+                      id="brush-depth"
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={brushDepth}
+                      onChange={(e) => setBrushDepth(parseInt(e.target.value))}
+                      className="brush-input"
+                    />
+                  </div>
+                </div>
+              </div>
 
               <div className="panel-section">
                 <h2>Materials</h2>

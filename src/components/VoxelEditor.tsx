@@ -31,14 +31,40 @@ export default function VoxelEditor() {
   const setPreviewVoxel = useVoxelStore((state) => state.setPreviewVoxel);
   const getVoxel = useVoxelStore((state) => state.getVoxel);
   const setSelectedVoxel = useVoxelStore((state) => state.setSelectedVoxel);
+  const addToSelection = useVoxelStore((state) => state.addToSelection);
   const setHoveredVoxel = useVoxelStore((state) => state.setHoveredVoxel);
   const getAssetAtVoxel = useVoxelStore((state) => state.getAssetAtVoxel);
   const setSelectedAsset = useVoxelStore((state) => state.setSelectedAsset);
+  const brushWidth = useVoxelStore((state) => state.brushWidth);
+  const brushHeight = useVoxelStore((state) => state.brushHeight);
+  const brushDepth = useVoxelStore((state) => state.brushDepth);
 
-  const placeVoxelAt = useCallback((x: number, y: number, z: number) => {
-    const voxel: VoxelData = { materialId: currentMaterial };
-    setVoxel(x, y, z, voxel);
-  }, [currentMaterial, setVoxel]);
+  const performBrushAction = useCallback((x: number, y: number, z: number) => {
+    // Determine action based on voxelMode
+    if (voxelMode === 'add') {
+      const voxel: VoxelData = { materialId: currentMaterial };
+      for (let dx = 0; dx < brushWidth; dx++) {
+        for (let dy = 0; dy < brushHeight; dy++) {
+          for (let dz = 0; dz < brushDepth; dz++) {
+            setVoxel(x + dx, y + dy, z + dz, voxel);
+          }
+        }
+      }
+    } else if (voxelMode === 'remove') {
+      for (let dx = 0; dx < brushWidth; dx++) {
+        for (let dy = 0; dy < brushHeight; dy++) {
+          for (let dz = 0; dz < brushDepth; dz++) {
+            removeVoxel(x + dx, y + dy, z + dz);
+          }
+        }
+      }
+    } else if (voxelMode === 'select') {
+      // In select mode, only select existing voxels without brush size
+      if (getVoxel(x, y, z)) {
+        addToSelection(x, y, z);
+      }
+    }
+  }, [voxelMode, currentMaterial, brushWidth, brushHeight, brushDepth, setVoxel, removeVoxel, addToSelection, getVoxel]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const rect = canvas.getBoundingClientRect();
@@ -81,7 +107,7 @@ export default function VoxelEditor() {
               x = Math.round(rayOrigin.x + rayDir.x * t);
               y = Math.round(planePosition);
               z = Math.round(rayOrigin.z + rayDir.z * t);
-              placeVoxelAt(x, y, z);
+              performBrushAction(x, y, z);
             }
           } else if (planeMode === 'x') {
             if (Math.abs(rayDir.x) >= epsilon) {
@@ -89,7 +115,7 @@ export default function VoxelEditor() {
               x = Math.round(planePosition);
               y = Math.round(rayOrigin.y + rayDir.y * t);
               z = Math.round(rayOrigin.z + rayDir.z * t);
-              placeVoxelAt(x, y, z);
+              performBrushAction(x, y, z);
             }
           } else {
             if (Math.abs(rayDir.z) >= epsilon) {
@@ -97,7 +123,7 @@ export default function VoxelEditor() {
               x = Math.round(rayOrigin.x + rayDir.x * t);
               y = Math.round(rayOrigin.y + rayDir.y * t);
               z = Math.round(planePosition);
-              placeVoxelAt(x, y, z);
+              performBrushAction(x, y, z);
             }
           }
         } else {
@@ -108,7 +134,7 @@ export default function VoxelEditor() {
             const newX = hitX + normalX;
             const newY = hitY + normalY;
             const newZ = hitZ + normalZ;
-            placeVoxelAt(newX, newY, newZ);
+            performBrushAction(newX, newY, newZ);
           }
         }
       }
@@ -198,7 +224,7 @@ export default function VoxelEditor() {
     } else {
       setHoveredVoxel(null);
     }
-  }, [canvas, camera, scene, planeMode, planePosition, placementMode, voxelMode, setPreviewVoxel, setHoveredVoxel, getVoxel, placeVoxelAt]);
+  }, [canvas, camera, scene, planeMode, planePosition, placementMode, voxelMode, setPreviewVoxel, setHoveredVoxel, getVoxel, performBrushAction]);
 
   const handleMouseDown = useCallback((e: MouseEvent) => {
     // Prevent right-click context menu
@@ -313,7 +339,7 @@ export default function VoxelEditor() {
               x = Math.round(rayOrigin.x + rayDir.x * t);
               y = Math.round(planePosition);
               z = Math.round(rayOrigin.z + rayDir.z * t);
-              placeVoxelAt(x, y, z);
+              performBrushAction(x, y, z);
             }
           } else if (planeMode === 'x') {
             if (Math.abs(rayDir.x) >= epsilon) {
@@ -321,7 +347,7 @@ export default function VoxelEditor() {
               x = Math.round(planePosition);
               y = Math.round(rayOrigin.y + rayDir.y * t);
               z = Math.round(rayOrigin.z + rayDir.z * t);
-              placeVoxelAt(x, y, z);
+              performBrushAction(x, y, z);
             }
           } else {
             if (Math.abs(rayDir.z) >= epsilon) {
@@ -329,7 +355,7 @@ export default function VoxelEditor() {
               x = Math.round(rayOrigin.x + rayDir.x * t);
               y = Math.round(rayOrigin.y + rayDir.y * t);
               z = Math.round(planePosition);
-              placeVoxelAt(x, y, z);
+              performBrushAction(x, y, z);
             }
           }
         } else {
@@ -340,7 +366,7 @@ export default function VoxelEditor() {
             const newX = hitX + normalX;
             const newY = hitY + normalY;
             const newZ = hitZ + normalZ;
-            placeVoxelAt(newX, newY, newZ);
+            performBrushAction(newX, newY, newZ);
           }
         }
       } else if (voxelMode === 'remove') {
@@ -360,7 +386,7 @@ export default function VoxelEditor() {
         }
       }
     }
-  }, [camera, scene, voxelMode, placementMode, planeMode, planePosition, placeVoxelAt, setSelectedVoxel, setSelectedAsset, removeVoxel, assetPreview.assetId, assetPreview.canPlace, confirmAssetPreview, getAssetAtVoxel]);
+  }, [camera, scene, voxelMode, placementMode, planeMode, planePosition, performBrushAction, setSelectedVoxel, setSelectedAsset, removeVoxel, assetPreview.assetId, assetPreview.canPlace, confirmAssetPreview, getAssetAtVoxel]);
 
   // Track mouse position
   useEffect(() => {

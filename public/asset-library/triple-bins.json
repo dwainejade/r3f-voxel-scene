@@ -1,0 +1,467 @@
+{
+  "version": 1,
+  "asset": {
+    "id": "custom-1764820727320-x2tykynoh",
+    "name": "triple bins",
+    "category": "furniture",
+    "description": "",
+    "bounds": {
+      "width": 3,
+      "height": 6,
+      "depth": 7
+    },
+    "voxels": [
+      {
+        "x": 0,
+        "y": 0,
+        "z": 4,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "z": 5,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "z": 4,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "z": 5,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "z": 4,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "z": 5,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "z": 4,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "z": 5,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "z": 4,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "z": 4,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "z": 5,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "z": 4,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "z": 5,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 2,
+        "y": 1,
+        "z": 4,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "z": 4,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "z": 5,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "z": 1,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "z": 2,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "z": 0,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "z": 1,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "z": 2,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "z": 0,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "z": 1,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "z": 2,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "z": 0,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "z": 1,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "z": 2,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "z": 0,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "z": 2,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "z": 0,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "z": 1,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "z": 2,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "z": 0,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "z": 1,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "z": 2,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 2,
+        "y": 1,
+        "z": 0,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 2,
+        "y": 1,
+        "z": 2,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "z": 0,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "z": 1,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "z": 2,
+        "material": "softWarmWhite"
+      },
+      {
+        "x": 0,
+        "y": 3,
+        "z": 2,
+        "material": "pastelPink"
+      },
+      {
+        "x": 0,
+        "y": 3,
+        "z": 3,
+        "material": "pastelPink"
+      },
+      {
+        "x": 0,
+        "y": 3,
+        "z": 4,
+        "material": "pastelPink"
+      },
+      {
+        "x": 0,
+        "y": 4,
+        "z": 2,
+        "material": "pastelPink"
+      },
+      {
+        "x": 0,
+        "y": 4,
+        "z": 3,
+        "material": "pastelPink"
+      },
+      {
+        "x": 0,
+        "y": 4,
+        "z": 4,
+        "material": "pastelPink"
+      },
+      {
+        "x": 0,
+        "y": 5,
+        "z": 2,
+        "material": "pastelPink"
+      },
+      {
+        "x": 0,
+        "y": 5,
+        "z": 3,
+        "material": "pastelPink"
+      },
+      {
+        "x": 0,
+        "y": 5,
+        "z": 4,
+        "material": "pastelPink"
+      },
+      {
+        "x": 1,
+        "y": 3,
+        "z": 2,
+        "material": "pastelPink"
+      },
+      {
+        "x": 1,
+        "y": 3,
+        "z": 3,
+        "material": "pastelPink"
+      },
+      {
+        "x": 1,
+        "y": 3,
+        "z": 4,
+        "material": "pastelPink"
+      },
+      {
+        "x": 1,
+        "y": 4,
+        "z": 2,
+        "material": "pastelPink"
+      },
+      {
+        "x": 1,
+        "y": 4,
+        "z": 4,
+        "material": "pastelPink"
+      },
+      {
+        "x": 1,
+        "y": 5,
+        "z": 2,
+        "material": "pastelPink"
+      },
+      {
+        "x": 1,
+        "y": 5,
+        "z": 3,
+        "material": "pastelPink"
+      },
+      {
+        "x": 1,
+        "y": 5,
+        "z": 4,
+        "material": "pastelPink"
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "z": 2,
+        "material": "pastelPink"
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "z": 3,
+        "material": "pastelPink"
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "z": 4,
+        "material": "pastelPink"
+      },
+      {
+        "x": 2,
+        "y": 4,
+        "z": 2,
+        "material": "pastelPink"
+      },
+      {
+        "x": 2,
+        "y": 4,
+        "z": 4,
+        "material": "pastelPink"
+      },
+      {
+        "x": 2,
+        "y": 5,
+        "z": 2,
+        "material": "pastelPink"
+      },
+      {
+        "x": 2,
+        "y": 5,
+        "z": 3,
+        "material": "pastelPink"
+      },
+      {
+        "x": 2,
+        "y": 5,
+        "z": 4,
+        "material": "pastelPink"
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "z": 6,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "z": 6,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "z": 6,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "z": 6,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "z": 6,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "z": 6,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "z": 6,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 2,
+        "y": 1,
+        "z": 6,
+        "material": "vibrantYellow"
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "z": 6,
+        "material": "vibrantYellow"
+      }
+    ],
+    "createdAt": "2025-12-04T03:58:47.320Z"
+  }
+}

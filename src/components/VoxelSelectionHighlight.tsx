@@ -3,13 +3,19 @@ import { Edges } from '@react-three/drei';
 
 export default function VoxelSelectionHighlight() {
   const selectedVoxel = useVoxelStore((state) => state.selectedVoxel);
+  const getVoxel = useVoxelStore((state) => state.getVoxel);
 
   if (!selectedVoxel) return null;
 
   const [x, y, z] = selectedVoxel;
 
+  // Only render if the voxel actually exists
+  if (!getVoxel(x, y, z)) {
+    return null;
+  }
+
   return (
-    <group position={[x + 0.5, y + 0.5, z + 0.5]}>
+    <group position={[x, y, z]}>
       <mesh>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial

@@ -3,12 +3,32 @@ import { useEffect, useState } from 'react';
 
 export default function VoxelSelection() {
   const selectedVoxel = useVoxelStore((state) => state.selectedVoxel);
+  const selectedVoxels = useVoxelStore((state) => state.selectedVoxels);
   const setSelectedVoxel = useVoxelStore((state) => state.setSelectedVoxel);
   const removeVoxel = useVoxelStore((state) => state.removeVoxel);
+  const clearSelection = useVoxelStore((state) => state.clearSelection);
+  const deleteSelectedVoxels = useVoxelStore((state) => state.deleteSelectedVoxels);
   const [offset, setOffset] = useState([0, 0, 0]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Handle multi-selection keyboard shortcuts
+      if (selectedVoxels.size > 0) {
+        switch (e.key) {
+          case 'Delete':
+            e.preventDefault();
+            deleteSelectedVoxels();
+            break;
+          case 'Escape':
+            e.preventDefault();
+            clearSelection();
+            break;
+          default:
+            break;
+        }
+        return;
+      }
+
       if (!selectedVoxel) return;
 
       const [x, y, z] = selectedVoxel;
@@ -47,7 +67,38 @@ export default function VoxelSelection() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedVoxel, removeVoxel, setSelectedVoxel, offset]);
+  }, [selectedVoxel, selectedVoxels, removeVoxel, setSelectedVoxel, deleteSelectedVoxels, clearSelection, offset]);
+
+  // Show multi-selection UI if there are multiple selected voxels
+  if (selectedVoxels.size > 0) {
+    const handleDeleteAll = () => {
+      deleteSelectedVoxels();
+    };
+
+    const handleClearSelection = () => {
+      clearSelection();
+    };
+
+    return (
+      <div className="panel-section">
+        <h2>Selected Voxels ({selectedVoxels.size})</h2>
+        <div className="selection-info">
+          <p>Voxels selected for bulk operations</p>
+        </div>
+        <div className="selection-actions">
+          <button className="action-btn" onClick={handleDeleteAll}>
+            Delete All ({selectedVoxels.size})
+          </button>
+          <button className="action-btn" onClick={handleClearSelection}>
+            Clear Selection
+          </button>
+        </div>
+        <p style={{ fontSize: '10px', color: '#888', margin: '8px 0 0 0' }}>
+          Shift+paint to select multiple voxels | Delete to remove all | Esc to deselect
+        </p>
+      </div>
+    );
+  }
 
   if (!selectedVoxel) return null;
 

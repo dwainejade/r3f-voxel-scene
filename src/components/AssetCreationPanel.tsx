@@ -1,17 +1,27 @@
-import React, { useRef, useState } from 'react';
-import { useVoxelStore, type AssetCategory } from '../store/voxelStore';
-import { exportAssetToFile, importAssetFromFile } from '../core/assetExport';
-import { registerAsset } from '../core/assets';
-import { MATERIAL_PRESETS, MATERIAL_CATEGORIES } from '../core/materials';
-import '../styles/AssetCreationPanel.css';
+import React, { useRef, useState } from "react";
+import { useVoxelStore, type AssetCategory } from "../store/voxelStore";
+import { exportAssetToFile, importAssetFromFile } from "../core/assetExport";
+import { registerAsset } from "../core/assets";
+import { MATERIAL_PRESETS, MATERIAL_CATEGORIES } from "../core/materials";
+import "../styles/AssetCreationPanel.css";
 
-const CATEGORIES: AssetCategory[] = ['furniture', 'decoration', 'structure', 'plant', 'other'];
+const CATEGORIES: AssetCategory[] = [
+  "furniture",
+  "decoration",
+  "structure",
+  "plant",
+  "other",
+];
 
 export const AssetCreationPanel: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showAssetInfo, setShowAssetInfo] = useState(false);
-  const [savedAssets, setSavedAssets] = useState<Array<{ name: string; category: AssetCategory; voxelCount: number }>>([]);
-  const [expandedMaterialCategory, setExpandedMaterialCategory] = useState<string | null>('softCozy');
+  const [savedAssets, setSavedAssets] = useState<
+    Array<{ name: string; category: AssetCategory; voxelCount: number }>
+  >([]);
+  const [expandedMaterialCategory, setExpandedMaterialCategory] = useState<
+    string | null
+  >("softCozy");
 
   const {
     assetCreationState,
@@ -25,11 +35,26 @@ export const AssetCreationPanel: React.FC = () => {
     setVoxelMode,
     placementMode,
     setPlacementMode,
+    planeMode,
+    setPlaneMode,
+    planePosition,
+    setPlanePosition,
+    movePlane,
+    brushWidth,
+    brushHeight,
+    brushDepth,
+    setBrushWidth,
+    setBrushHeight,
+    setBrushDepth,
     assetLibrary,
   } = useVoxelStore();
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateAssetCreationInfo(e.target.value, assetCreationState.assetCategory, assetCreationState.assetDescription);
+    updateAssetCreationInfo(
+      e.target.value,
+      assetCreationState.assetCategory,
+      assetCreationState.assetDescription
+    );
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -44,12 +69,12 @@ export const AssetCreationPanel: React.FC = () => {
     const voxels = getAssetCreationVoxels();
 
     if (voxels.length === 0) {
-      alert('Please place some voxels before saving');
+      alert("Please place some voxels before saving");
       return;
     }
 
     if (!assetCreationState.assetName.trim()) {
-      alert('Please enter an asset name');
+      alert("Please enter an asset name");
       return;
     }
 
@@ -76,12 +101,12 @@ export const AssetCreationPanel: React.FC = () => {
     const voxels = getAssetCreationVoxels();
 
     if (voxels.length === 0) {
-      alert('Please place some voxels before exporting');
+      alert("Please place some voxels before exporting");
       return;
     }
 
     if (!assetCreationState.assetName.trim()) {
-      alert('Please enter an asset name');
+      alert("Please enter an asset name");
       return;
     }
 
@@ -94,7 +119,10 @@ export const AssetCreationPanel: React.FC = () => {
       );
       alert(`Asset "${assetCreationState.assetName}" exported successfully!`);
     } catch (error) {
-      alert('Error exporting asset: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      alert(
+        "Error exporting asset: " +
+          (error instanceof Error ? error.message : "Unknown error")
+      );
     }
   };
 
@@ -108,15 +136,18 @@ export const AssetCreationPanel: React.FC = () => {
         registerAsset(assetLibrary, asset);
         alert(`Asset "${asset.name}" imported successfully!`);
       } else {
-        alert('Failed to import asset');
+        alert("Failed to import asset");
       }
     } catch (error) {
-      alert('Error importing asset: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      alert(
+        "Error importing asset: " +
+          (error instanceof Error ? error.message : "Unknown error")
+      );
     }
 
     // Reset input
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -141,10 +172,22 @@ export const AssetCreationPanel: React.FC = () => {
           <div className="saved-assets-list">
             {savedAssets.map((asset, idx) => (
               <div key={idx} className="saved-asset-item">
-                <div className="asset-icon">{asset.category === 'furniture' ? '🪑' : asset.category === 'decoration' ? '✨' : asset.category === 'plant' ? '🌿' : asset.category === 'structure' ? '🏗️' : '📦'}</div>
+                <div className="asset-icon">
+                  {asset.category === "furniture"
+                    ? "🪑"
+                    : asset.category === "decoration"
+                    ? "✨"
+                    : asset.category === "plant"
+                    ? "🌿"
+                    : asset.category === "structure"
+                    ? "🏗️"
+                    : "📦"}
+                </div>
                 <div className="asset-details">
                   <div className="asset-name">{asset.name}</div>
-                  <div className="asset-meta">{asset.category} • {asset.voxelCount} voxels</div>
+                  <div className="asset-meta">
+                    {asset.category} • {asset.voxelCount} voxels
+                  </div>
                 </div>
               </div>
             ))}
@@ -153,7 +196,10 @@ export const AssetCreationPanel: React.FC = () => {
 
         <div className="panel-section">
           <h2>What's Next?</h2>
-          <button className="action-btn" onClick={() => setShowAssetInfo(false)}>
+          <button
+            className="action-btn"
+            onClick={() => setShowAssetInfo(false)}
+          >
             ← Continue Building
           </button>
           <button className="action-btn" onClick={cancelAssetCreation}>
@@ -183,7 +229,10 @@ export const AssetCreationPanel: React.FC = () => {
 
           <div className="form-group">
             <label htmlFor="asset-category">Category *</label>
-            <select value={assetCreationState.assetCategory} onChange={handleCategoryChange}>
+            <select
+              value={assetCreationState.assetCategory}
+              onChange={handleCategoryChange}
+            >
               {CATEGORIES.map((cat) => (
                 <option key={cat} value={cat}>
                   {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -200,7 +249,11 @@ export const AssetCreationPanel: React.FC = () => {
               placeholder="Brief description..."
               value={assetCreationState.assetDescription}
               onChange={(e) =>
-                updateAssetCreationInfo(assetCreationState.assetName, assetCreationState.assetCategory, e.target.value)
+                updateAssetCreationInfo(
+                  assetCreationState.assetName,
+                  assetCreationState.assetCategory,
+                  e.target.value
+                )
               }
             />
           </div>
@@ -208,7 +261,10 @@ export const AssetCreationPanel: React.FC = () => {
 
         {bounds && (
           <div className="bounds-info-inline">
-            <span>Bounds: {bounds.maxX - bounds.minX + 1}×{bounds.maxY - bounds.minY + 1}×{bounds.maxZ - bounds.minZ + 1}</span>
+            <span>
+              Bounds: {bounds.maxX - bounds.minX + 1}×
+              {bounds.maxY - bounds.minY + 1}×{bounds.maxZ - bounds.minZ + 1}
+            </span>
             <span>Voxels: {voxels.length}</span>
           </div>
         )}
@@ -222,75 +278,167 @@ export const AssetCreationPanel: React.FC = () => {
             <label>Voxel Mode</label>
             <div className="mode-buttons">
               <button
-                className={`mode-btn ${voxelMode === 'select' ? 'active' : ''}`}
-                onClick={() => setVoxelMode('select')}
+                className={`mode-btn ${voxelMode === "select" ? "active" : ""}`}
+                onClick={() => setVoxelMode("select")}
               >
                 Select
               </button>
               <button
-                className={`mode-btn ${voxelMode === 'add' ? 'active' : ''}`}
-                onClick={() => setVoxelMode('add')}
+                className={`mode-btn ${voxelMode === "add" ? "active" : ""}`}
+                onClick={() => setVoxelMode("add")}
               >
                 Add
               </button>
               <button
-                className={`mode-btn ${voxelMode === 'remove' ? 'active' : ''}`}
-                onClick={() => setVoxelMode('remove')}
+                className={`mode-btn ${voxelMode === "remove" ? "active" : ""}`}
+                onClick={() => setVoxelMode("remove")}
               >
                 Remove
               </button>
             </div>
-          </div>
 
-          <div className="form-group">
             <label>Placement</label>
             <div className="mode-buttons">
               <button
-                className={`mode-btn ${placementMode === 'plane' ? 'active' : ''}`}
-                onClick={() => setPlacementMode('plane')}
+                className={`mode-btn ${
+                  placementMode === "plane" ? "active" : ""
+                }`}
+                onClick={() => setPlacementMode("plane")}
               >
                 Plane
               </button>
               <button
-                className={`mode-btn ${placementMode === 'free' ? 'active' : ''}`}
-                onClick={() => setPlacementMode('free')}
+                className={`mode-btn ${
+                  placementMode === "free" ? "active" : ""
+                }`}
+                onClick={() => setPlacementMode("free")}
               >
                 Free
               </button>
             </div>
           </div>
 
+          {placementMode === "plane" && (
+            <div className="form-group">
+              <label>Plane Controls</label>
+              <div className="plane-buttons">
+                {(["x", "y", "z"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    className={`plane-btn ${
+                      planeMode === mode ? "active" : ""
+                    }`}
+                    onClick={() => setPlaneMode(mode)}
+                  >
+                    {mode.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+              <div className="plane-controls">
+                <button
+                  className="plane-move-btn"
+                  onClick={() => movePlane(-1)}
+                >
+                  −
+                </button>
+                <input
+                  type="range"
+                  min={-50}
+                  max={50}
+                  value={planePosition}
+                  onChange={(e) => setPlanePosition(parseInt(e.target.value))}
+                  className="plane-slider"
+                />
+                <button className="plane-move-btn" onClick={() => movePlane(1)}>
+                  +
+                </button>
+              </div>
+              <p className="plane-position">Position: {planePosition}</p>
+            </div>
+          )}
+
+          <div className="form-group">
+            <label>Brush Size</label>
+            <div className="brush-controls-compact">
+              <div className="brush-input-group-compact">
+                <label htmlFor="brush-width-asset">Width</label>
+                <input
+                  id="brush-width-asset"
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={brushWidth}
+                  onChange={(e) => setBrushWidth(parseInt(e.target.value))}
+                  className="brush-input-compact"
+                />
+              </div>
+              <div className="brush-input-group-compact">
+                <label htmlFor="brush-height-asset">Height</label>
+                <input
+                  id="brush-height-asset"
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={brushHeight}
+                  onChange={(e) => setBrushHeight(parseInt(e.target.value))}
+                  className="brush-input-compact"
+                />
+              </div>
+              <div className="brush-input-group-compact">
+                <label htmlFor="brush-depth-asset">Depth</label>
+                <input
+                  id="brush-depth-asset"
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={brushDepth}
+                  onChange={(e) => setBrushDepth(parseInt(e.target.value))}
+                  className="brush-input-compact"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="form-group">
             <label>Material</label>
             <div className="material-selector-compact">
-              {Object.entries(MATERIAL_CATEGORIES).map(([categoryName, materialIds]) => (
-                <div key={categoryName} className="material-category-compact">
-                  <button
-                    className="category-toggle-compact"
-                    onClick={() => setExpandedMaterialCategory(expandedMaterialCategory === categoryName ? null : categoryName)}
-                  >
-                    {categoryName.charAt(0).toUpperCase() + categoryName.slice(1)}
-                  </button>
-                  {expandedMaterialCategory === categoryName && (
-                    <div className="material-palette-compact">
-                      {materialIds.map((materialId) => {
-                        const material = MATERIAL_PRESETS[materialId];
-                        return (
-                          <button
-                            key={material.id}
-                            className={`material-btn-compact ${
-                              currentMaterial === material.id ? 'active' : ''
-                            }`}
-                            style={{ backgroundColor: material.color }}
-                            onClick={() => setCurrentMaterial(material.id)}
-                            title={material.name}
-                          />
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              ))}
+              {Object.entries(MATERIAL_CATEGORIES).map(
+                ([categoryName, materialIds]) => (
+                  <div key={categoryName} className="material-category-compact">
+                    <button
+                      className="category-toggle-compact"
+                      onClick={() =>
+                        setExpandedMaterialCategory(
+                          expandedMaterialCategory === categoryName
+                            ? null
+                            : categoryName
+                        )
+                      }
+                    >
+                      {categoryName.charAt(0).toUpperCase() +
+                        categoryName.slice(1)}
+                    </button>
+                    {expandedMaterialCategory === categoryName && (
+                      <div className="material-palette-compact">
+                        {materialIds.map((materialId) => {
+                          const material = MATERIAL_PRESETS[materialId];
+                          return (
+                            <button
+                              key={material.id}
+                              className={`material-btn-compact ${
+                                currentMaterial === material.id ? "active" : ""
+                              }`}
+                              style={{ backgroundColor: material.color }}
+                              onClick={() => setCurrentMaterial(material.id)}
+                              title={material.name}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )
+              )}
             </div>
           </div>
         </div>
@@ -308,7 +456,10 @@ export const AssetCreationPanel: React.FC = () => {
             💾 Export
           </button>
 
-          <button className="btn btn-secondary" onClick={() => fileInputRef.current?.click()}>
+          <button
+            className="btn btn-secondary"
+            onClick={() => fileInputRef.current?.click()}
+          >
             📂 Import
           </button>
 
@@ -317,7 +468,7 @@ export const AssetCreationPanel: React.FC = () => {
             type="file"
             accept=".json"
             onChange={handleImportAsset}
-            style={{ display: 'none' }}
+            style={{ display: "none" }}
           />
 
           <button className="btn btn-danger" onClick={cancelAssetCreation}>

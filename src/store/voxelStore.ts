@@ -25,6 +25,7 @@ interface VoxelStore {
   gridSize: number;
   editMode: boolean;
   selectedVoxel: [number, number, number] | null;
+  selectedVoxels: Set<string>; // Multi-selection for bulk operations
   hoveredVoxel: [number, number, number] | null;
   currentMaterial: string;
   sceneVersion: number;
@@ -34,6 +35,9 @@ interface VoxelStore {
   placementMode: PlacementMode;
   voxelMode: VoxelMode;
   previewVoxel: [number, number, number] | null;
+  brushWidth: number;
+  brushHeight: number;
+  brushDepth: number;
 
   // Light management
   lights: Light[];
@@ -77,6 +81,10 @@ interface VoxelStore {
 
   // Actions - Selection
   setSelectedVoxel: (pos: [number, number, number] | null) => void;
+  addToSelection: (x: number, y: number, z: number) => void;
+  removeFromSelection: (x: number, y: number, z: number) => void;
+  clearSelection: () => void;
+  deleteSelectedVoxels: () => void;
   setHoveredVoxel: (pos: [number, number, number] | null) => void;
   setSelectedAsset: (assetInstanceId: string | null) => void;
 
@@ -98,6 +106,9 @@ interface VoxelStore {
   setPlacementMode: (mode: PlacementMode) => void;
   setVoxelMode: (mode: VoxelMode) => void;
   setPreviewVoxel: (pos: [number, number, number] | null) => void;
+  setBrushWidth: (width: number) => void;
+  setBrushHeight: (height: number) => void;
+  setBrushDepth: (depth: number) => void;
 
   // Actions - Light Management
   addLight: (type: LightType, position: [number, number, number]) => void;
@@ -134,6 +145,7 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   gridSize: GRID_SIZE,
   editMode: true,
   selectedVoxel: null,
+  selectedVoxels: new Set(),
   hoveredVoxel: null,
   currentMaterial: 'white',
   sceneVersion: 0,
@@ -143,6 +155,9 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   placementMode: "plane",
   voxelMode: "select",
   previewVoxel: null,
+  brushWidth: 1,
+  brushHeight: 1,
+  brushDepth: 1,
   lights: [],
   selectedLight: null,
   assetLibrary: createDefaultAssetLibrary(),
@@ -351,7 +366,42 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   },
 
   setEditMode: (enabled) => set({ editMode: enabled }),
+
   setSelectedVoxel: (pos) => set({ selectedVoxel: pos }),
+
+  addToSelection: (x, y, z) => {
+    const key = `${x},${y},${z}`;
+    set((state) => {
+      // Only add if not already selected
+      if (state.selectedVoxels.has(key)) {
+        return { selectedVoxels: state.selectedVoxels };
+      }
+      return {
+        selectedVoxels: new Set(state.selectedVoxels).add(key),
+      };
+    });
+  },
+
+  removeFromSelection: (x, y, z) => {
+    const key = `${x},${y},${z}`;
+    set((state) => {
+      const newSelection = new Set(state.selectedVoxels);
+      newSelection.delete(key);
+      return { selectedVoxels: newSelection };
+    });
+  },
+
+  clearSelection: () => set({ selectedVoxels: new Set() }),
+
+  deleteSelectedVoxels: () => {
+    const state = get();
+    state.selectedVoxels.forEach((key) => {
+      const [x, y, z] = key.split(',').map(Number);
+      state.removeVoxel(x, y, z);
+    });
+    set({ selectedVoxels: new Set() });
+  },
+
   setHoveredVoxel: (pos) => set({ hoveredVoxel: pos }),
   setSelectedAsset: (assetInstanceId) => set({ selectedAsset: assetInstanceId }),
   setCurrentMaterial: (materialId) => set({ currentMaterial: materialId }),
@@ -424,6 +474,9 @@ export const useVoxelStore = create<VoxelStore>((set, get) => ({
   setPlacementMode: (mode) => set({ placementMode: mode }),
   setVoxelMode: (mode) => set({ voxelMode: mode }),
   setPreviewVoxel: (pos) => set({ previewVoxel: pos }),
+  setBrushWidth: (width) => set({ brushWidth: Math.max(1, width) }),
+  setBrushHeight: (height) => set({ brushHeight: Math.max(1, height) }),
+  setBrushDepth: (depth) => set({ brushDepth: Math.max(1, depth) }),
 
   buildExampleDockScene: () => {
     const state = get();

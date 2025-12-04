@@ -6,7 +6,7 @@
   background: transparent;
   height: 100%;
   overflow-x: auto;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   align-items: flex-start;
 }
 
@@ -38,7 +38,7 @@
 .action-row {
   display: flex;
   gap: 12px;
-  align-items: flex-end;
+  align-items: flex-start;
   flex-wrap: wrap;
 }
 
@@ -75,6 +75,11 @@
   outline: none;
   border-color: #51cf66;
   background: #333;
+}
+
+.brush-controls-compact {
+  display: flex;
+  gap: 8px;
 }
 
 .bounds-info-inline {
